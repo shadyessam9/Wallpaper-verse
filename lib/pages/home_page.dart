@@ -18,7 +18,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        title: 'Home',
+        title: 'Home', isSettingsPage: false
       ),
       backgroundColor: Colors.black,
       body: SingleChildScrollView(
@@ -65,9 +65,21 @@ class _HomePageState extends State<HomePage> {
                                 },
                                 child: Container(
                                   width: MediaQuery.of(context).size.width * 0.4,
-                                  child: ContainerWidget(
-                                    imageUrl: snapshot.data!.docs[index]['imageUrl'],
-                                  ),
+                                  child: GestureDetector( // Wrap ContainerWidget with GestureDetector
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ImagePreviewer(
+                                            imageUrl: snapshot.data!.docs[index]['imageUrl'],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: ContainerWidget(
+                                      imageUrl: snapshot.data!.docs[index]['imageUrl'],
+                                    ),
+                                  )
                                 ),
                               );
                             },

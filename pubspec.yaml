@@ -52,7 +52,8 @@ dependencies:
   persistent_bottom_nav_bar: ^5.0.2
   flutter_wallpaper_manager: ^0.0.4
   flutter_cache_manager: ^3.3.1
-  dropdown_button2: ^2.3.9
+  animated_custom_dropdown: ^3.0.0
+  numberpicker: ^2.1.2
 
 
 dev_dependencies:

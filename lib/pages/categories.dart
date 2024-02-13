@@ -26,7 +26,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar:CustomAppBar(
-      title: 'Categories',
+      title: 'Categories', isSettingsPage: false
     ),
       backgroundColor: Colors.black,
       body: SingleChildScrollView(

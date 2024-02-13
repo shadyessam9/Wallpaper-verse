@@ -3,7 +3,6 @@ import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:wallpaper_verse/pages/categories.dart';
 import 'package:wallpaper_verse/pages/favorites_list.dart';
 import 'package:wallpaper_verse/pages/home_page.dart';
-import 'package:wallpaper_verse/pages/settings_page.dart';
 import 'package:wallpaper_verse/pages/slideshow.dart';
 
 class MainHome extends StatefulWidget {
@@ -31,8 +30,7 @@ class _MainHomeState extends State<MainHome> {
         HomePage(),
         CategoriesPage(),
         FavoritesPage(),
-        SlideshowPage(),
-        SettingsPage(),
+        SlideshowPage()
       ],
       items: [
         PersistentBottomNavBarItem(
@@ -54,12 +52,7 @@ class _MainHomeState extends State<MainHome> {
           icon: Icon(Icons.play_arrow),
           title: 'SlideShow',
           activeColorPrimary: Colors.white, // Set color non-null
-        ),
-        PersistentBottomNavBarItem(
-          icon: Icon(Icons.settings),
-          title: 'Settings',
-          activeColorPrimary: Colors.white, // Set color non-null
-        ),
+        )
       ],
       confineInSafeArea: true,
       backgroundColor: Color.fromRGBO(33, 33, 33, 1), // Dark Grey Color

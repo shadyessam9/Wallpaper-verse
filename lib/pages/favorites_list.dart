@@ -15,7 +15,7 @@ class _FavoritesPage extends State<FavoritesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar:CustomAppBar(
-        title: 'Favorites',
+        title: 'Favorites', isSettingsPage: false
       ),
       backgroundColor: Colors.black,
       body: SingleChildScrollView(

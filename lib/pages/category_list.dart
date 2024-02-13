@@ -16,7 +16,7 @@ class _CategoryList extends State<CategoryList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar:CustomAppBar(
-        title: 'Category',
+        title: 'Category', isSettingsPage: false
       ),
       backgroundColor: Colors.black,
       body: SingleChildScrollView(
