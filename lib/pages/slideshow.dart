@@ -14,12 +14,14 @@ class SlideshowPage extends StatefulWidget {
 
 class _SlideshowPageState extends State<SlideshowPage> {
   bool on = false;
+  String selectedSource = '';
   static const List<String> _list1 = [
     'Favorites',
     'Random',
   ];
 
   static const List<String> _list2 = [
+    'On Unlocking',
     'Hours',
     'Days',
   ];
@@ -30,7 +32,7 @@ class _SlideshowPageState extends State<SlideshowPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        title: 'SlideShow', isSettingsPage: false
+          title: 'SlideShow', isSettingsPage: false
       ),
       backgroundColor: Colors.black,
       body: SingleChildScrollView(
@@ -64,6 +66,10 @@ class _SlideshowPageState extends State<SlideshowPage> {
                       onChanged: (bool value) {
                         setState(() {
                           on = value;
+                          if (!on) {
+                            // Reset selected source when turning off
+                            selectedSource = '';
+                          }
                         });
                       },
                     ),
@@ -123,7 +129,11 @@ class _SlideshowPageState extends State<SlideshowPage> {
                                 color: Colors.white,
                               ),
                             ),
-                            onChanged: (String) {},
+                            onChanged: (String value) {
+                              setState(() {
+                                selectedSource = value;
+                              });
+                            },
                           ),
                         ),
                       ),
@@ -175,23 +185,31 @@ class _SlideshowPageState extends State<SlideshowPage> {
                                       color: Colors.white,
                                     ),
                                   ),
-                                  onChanged: (String) {},
+                                  onChanged: (String value) {
+                                    setState(() {
+                                      // Handle enabling/disabling of NumberPicker based on the selected source
+                                      selectedSource = value;
+                                    });
+                                  },
                                 ),
                               ),
                             ),
                             SizedBox(width: 10), // Add some space between the widgets
                             Expanded(
                               flex: 1,
-                              child: NumberPicker(
-                                textStyle: TextStyle(color: Colors.white70, fontSize: 15),
-                                selectedTextStyle: TextStyle(color: Colors.white, fontSize: 30),
-                                value: _currentValue,
-                                minValue: 0,
-                                maxValue: 100,
-                                onChanged: (value) => setState(() => _currentValue = value),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(color: Colors.white),
+                              child: IgnorePointer(
+                                ignoring: selectedSource == 'On Unlocking',
+                                child: NumberPicker(
+                                  textStyle: TextStyle(color: Colors.white70, fontSize: 15),
+                                  selectedTextStyle: TextStyle(color: Colors.white, fontSize: 30),
+                                  value: _currentValue,
+                                  minValue: 0,
+                                  maxValue: 100,
+                                  onChanged: (value) => setState(() => _currentValue = value),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: Colors.white),
+                                  ),
                                 ),
                               ),
                             ),
