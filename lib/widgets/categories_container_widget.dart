@@ -3,10 +3,12 @@ import 'package:shimmer/shimmer.dart';
 
 class CategoriesContainerWidget extends StatelessWidget {
   final String imageUrl;
+  final String title;
 
   const CategoriesContainerWidget({
     Key? key,
     required this.imageUrl,
+    required this.title,
   }) : super(key: key);
 
   @override
@@ -14,36 +16,58 @@ class CategoriesContainerWidget extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(right: 10),
       child: SizedBox(
-        height: 150, // Increased height for better content visibility
+        height: 200,
         width: 200,
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(20), // Circular border radius to create pill shape
+          borderRadius: BorderRadius.circular(15),
           child: Stack(
             fit: StackFit.expand,
             children: [
-              Image.network(
-                imageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: Colors.lightBlue,
-                    alignment: Alignment.center,
-                    child: Text(
-                      'Error',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  );
-                },
+              // Wrap the Image.network with a Container to add shadow
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Image.network(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (BuildContext context, Widget child,
+                      ImageChunkEvent? loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return SizedBox(
+                      height: 200,
+                      child: Shimmer.fromColors(
+                        baseColor: Colors.grey.shade200,
+                        highlightColor: Colors.grey.shade400,
+                        child: Container(
+                          color: Colors.white,
+                        ),
+                      ),
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 200,
+                      width: 200,
+                      color: Colors.lightBlue,
+                      alignment: Alignment.center,
+                    );
+                  },
+                ),
               ),
-              Shimmer.fromColors(
-                baseColor: Colors.grey.shade200,
-                highlightColor: Colors.grey.shade400,
-                child: Container(color: Colors.white),
+              Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      color: Colors.black.withOpacity(0.3)
+                  )
               ),
               Center(
                 child: Text(
-                  'Your Text Here',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  title,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.white, // Text color
+                  ),
                 ),
               ),
             ],

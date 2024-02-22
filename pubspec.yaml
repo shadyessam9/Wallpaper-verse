@@ -54,6 +54,10 @@ dependencies:
   flutter_cache_manager: ^3.3.1
   animated_custom_dropdown: ^3.0.0
   numberpicker: ^2.1.2
+  image_picker: ^1.0.7
+  http: ^0.13.3
+  path_provider: ^2.0.2
+  image_gallery_saver: ^2.0.1
 
 
 dev_dependencies:

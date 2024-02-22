@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
-import 'package:wallpaper_verse/pages/categories.dart';
-import 'package:wallpaper_verse/pages/favorites_list.dart';
-import 'package:wallpaper_verse/pages/home_page.dart';
+import 'package:wallpaper_verse/pages/favorites.dart';
+import 'package:wallpaper_verse/pages/favorites.dart';
+import 'package:wallpaper_verse/pages/home.dart';
 import 'package:wallpaper_verse/pages/slideshow.dart';
+import 'package:wallpaper_verse/pages/studio.dart';
 
 class MainHome extends StatefulWidget {
   const MainHome({Key? key}) : super(key: key);
@@ -28,9 +29,9 @@ class _MainHomeState extends State<MainHome> {
       controller: _controller,
       screens: [
         HomePage(),
-        CategoriesPage(),
         FavoritesPage(),
-        SlideshowPage()
+        StudioPage(),
+        SlideshowPage(),
       ],
       items: [
         PersistentBottomNavBarItem(
@@ -39,18 +40,18 @@ class _MainHomeState extends State<MainHome> {
           activeColorPrimary: Colors.white, // Set color non-null
         ),
         PersistentBottomNavBarItem(
-          icon: Icon(Icons.category),
-          title: 'Categories',
-          activeColorPrimary: Colors.white, // Set color non-null
-        ),
-        PersistentBottomNavBarItem(
           icon: Icon(Icons.favorite),
-          title: 'Favorites',
+          title: 'My Favorites',
           activeColorPrimary: Colors.white, // Set color non-null
         ),
         PersistentBottomNavBarItem(
-          icon: Icon(Icons.play_arrow),
-          title: 'SlideShow',
+          icon: Icon(Icons.image_sharp),
+          title: 'My Studio',
+          activeColorPrimary: Colors.white, // Set color non-null
+        ),
+        PersistentBottomNavBarItem(
+          icon: Icon(Icons.settings),
+          title: 'Slide Show',
           activeColorPrimary: Colors.white, // Set color non-null
         )
       ],

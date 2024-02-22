@@ -15,12 +15,21 @@ class SlideshowPage extends StatefulWidget {
 class _SlideshowPageState extends State<SlideshowPage> {
   bool on = false;
   String selectedSource = '';
+  String selectedCategory = '';
   static const List<String> _list1 = [
     'Favorites',
     'Random',
+    'Category' // Added category option
   ];
 
   static const List<String> _list2 = [
+    'HomePage',
+    'LockScreen',
+    'HomePage & LockScreen',
+    'HomePage & DialPad',
+  ];
+
+  static const List<String> _list3 = [
     'On Unlocking',
     'Hours',
     'Days',
@@ -32,7 +41,8 @@ class _SlideshowPageState extends State<SlideshowPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-          title: 'SlideShow', isSettingsPage: false
+        title: 'SlideShow',
+        isSettingsPage: false,
       ),
       backgroundColor: Colors.black,
       body: SingleChildScrollView(
@@ -67,8 +77,9 @@ class _SlideshowPageState extends State<SlideshowPage> {
                         setState(() {
                           on = value;
                           if (!on) {
-                            // Reset selected source when turning off
+                            // Reset selected source and category when turning off
                             selectedSource = '';
+                            selectedCategory = '';
                           }
                         });
                       },
@@ -137,6 +148,114 @@ class _SlideshowPageState extends State<SlideshowPage> {
                           ),
                         ),
                       ),
+                      if (selectedSource == 'Category') // Show dropdown only when 'Category' is selected
+                        Padding(
+                          padding: const EdgeInsets.only(top: 50, left: 10, right: 10),
+                          child: Container(
+                            height: 60,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: Color.fromRGBO(33, 33, 33, 1),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: CustomDropdown<String>(
+                              items: _list2,
+                              hintText: 'Select Category',
+                              closedHeaderPadding: const EdgeInsets.all(15),
+                              maxlines: 2,
+                              listItemBuilder: (context, item, isSelected, onItemSelect) {
+                                return Text(
+                                  item.toString(),
+                                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                                );
+                              },
+                              decoration: CustomDropdownDecoration(
+                                closedFillColor: Color.fromRGBO(33, 33, 33, 1),
+                                expandedFillColor: Color.fromRGBO(33, 33, 33, 1),
+                                hintStyle: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                                headerStyle: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                noResultFoundStyle: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                                closedSuffixIcon: const Icon(
+                                  Icons.keyboard_arrow_down,
+                                  color: Colors.white,
+                                ),
+                                expandedSuffixIcon: const Icon(
+                                  Icons.keyboard_arrow_up,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              onChanged: (String value) {
+                                setState(() {
+                                  selectedCategory = value;
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 50, left: 10, right: 10),
+                        child: Container(
+                          height: 60,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Color.fromRGBO(33, 33, 33, 1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: CustomDropdown<String>(
+                            items: _list3,
+                            hintText: 'Select Duration',
+                            closedHeaderPadding: const EdgeInsets.all(15),
+                            maxlines: 2,
+                            listItemBuilder: (context, item, isSelected, onItemSelect) {
+                              return Text(
+                                item.toString(),
+                                style: const TextStyle(color: Colors.white, fontSize: 16),
+                              );
+                            },
+                            decoration: CustomDropdownDecoration(
+                              closedFillColor: Color.fromRGBO(33, 33, 33, 1),
+                              expandedFillColor: Color.fromRGBO(33, 33, 33, 1),
+                              hintStyle: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                              headerStyle: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              noResultFoundStyle: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                              closedSuffixIcon: const Icon(
+                                Icons.keyboard_arrow_down,
+                                color: Colors.white,
+                              ),
+                              expandedSuffixIcon: const Icon(
+                                Icons.keyboard_arrow_up,
+                                color: Colors.white,
+                              ),
+                            ),
+                            onChanged: (String value) {
+                              setState(() {
+                                // Handle enabling/disabling of NumberPicker based on the selected source
+                                selectedSource = value;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
                       Padding(
                         padding: const EdgeInsets.only(top: 50, left: 10, right: 10),
                         child: Row(
@@ -150,7 +269,7 @@ class _SlideshowPageState extends State<SlideshowPage> {
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: CustomDropdown<String>(
-                                  items: _list2,
+                                  items: _list3,
                                   hintText: 'Select Duration',
                                   closedHeaderPadding: const EdgeInsets.all(15),
                                   maxlines: 2,
