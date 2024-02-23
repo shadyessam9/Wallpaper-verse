@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:is_lock_screen/is_lock_screen.dart';
 import 'package:numberpicker/numberpicker.dart';
 import '../widgets/app_bar.dart';
 
@@ -12,7 +13,7 @@ class SlideshowPage extends StatefulWidget {
   State<SlideshowPage> createState() => _SlideshowPageState();
 }
 
-class _SlideshowPageState extends State<SlideshowPage> {
+class _SlideshowPageState extends State<SlideshowPage> with WidgetsBindingObserver {
   bool on = false;
   String selectedSource = '';
   String selectedCategory = '';
@@ -36,6 +37,31 @@ class _SlideshowPageState extends State<SlideshowPage> {
   ];
 
   int _currentValue = 1;
+
+
+
+ @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance?.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance?.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.inactive) {
+      print('app inactive, is lock screen: ${await isLockScreen()}');
+    } else if (state == AppLifecycleState.resumed) {
+      print('app resumed');
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {

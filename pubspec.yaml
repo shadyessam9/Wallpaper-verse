@@ -58,6 +58,7 @@ dependencies:
   http: ^0.13.3
   path_provider: ^2.0.2
   image_gallery_saver: ^2.0.1
+  is_lock_screen: ^2.0.0
 
 
 dev_dependencies:
