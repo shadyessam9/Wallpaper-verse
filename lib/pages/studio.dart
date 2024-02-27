@@ -1,7 +1,7 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../subpages/upload_wallpaper.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/container_widget.dart'; // Import the ImageUploadPage
@@ -38,7 +38,7 @@ class _StudioPage extends State<StudioPage> {
           children: [
             Container(
               padding: EdgeInsets.symmetric(horizontal: 5),
-              child: StreamBuilder<QuerySnapshot>(
+              child:StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection('All wallpapers')
                     .snapshots(),

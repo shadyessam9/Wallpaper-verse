@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wallpaper_verse/subpages/category_list.dart';
 import '../subpages/wallpaper_preview.dart';
 import '../widgets/app_bar.dart';

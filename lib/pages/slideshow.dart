@@ -1,9 +1,8 @@
-import 'dart:developer';
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:is_lock_screen/is_lock_screen.dart';
 import 'package:numberpicker/numberpicker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/app_bar.dart';
 
 class SlideshowPage extends StatefulWidget {
@@ -13,21 +12,34 @@ class SlideshowPage extends StatefulWidget {
   State<SlideshowPage> createState() => _SlideshowPageState();
 }
 
-class _SlideshowPageState extends State<SlideshowPage> with WidgetsBindingObserver {
+class _SlideshowPageState extends State<SlideshowPage> {
+  late SharedPreferences _prefs;
+  bool _prefsInitialized = false;
   bool on = false;
+  bool slideState = false;
   String selectedSource = '';
+  String selectedTarget = '';
   String selectedCategory = '';
+  String selectedType = '';
+  String durationType = '';
+
+
+    @override
+  void initState() {
+    super.initState();
+    _initPrefs();
+  }
+
+
   static const List<String> _list1 = [
     'Favorites',
-    'Random',
-    'Category' // Added category option
+    'Random'
   ];
 
   static const List<String> _list2 = [
     'HomePage',
     'LockScreen',
-    'HomePage & LockScreen',
-    'HomePage & DialPad',
+    'HomePage & LockScreen'
   ];
 
   static const List<String> _list3 = [
@@ -36,35 +48,34 @@ class _SlideshowPageState extends State<SlideshowPage> with WidgetsBindingObserv
     'Days',
   ];
 
-  int _currentValue = 1;
 
 
+void _initPrefs() async {
+  _prefs = await SharedPreferences.getInstance();
+  setState(() {_prefsInitialized = true;});
+}
 
- @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance?.addObserver(this);
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance?.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) async {
-    super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.inactive) {
-      print('app inactive, is lock screen: ${await isLockScreen()}');
-    } else if (state == AppLifecycleState.resumed) {
-      print('app resumed');
+  // Save selected value to SharedPreferences
+  Future<void> _saveSelectedValue<T>(String key, T value) async {
+    if (value is String) {
+      await _prefs.setString(key, value);
+    } else if (value is int) {
+      await _prefs.setInt(key, value);
+    } else if (value is bool) {
+      await _prefs.setBool(key, value);
+    } else {
+      throw Exception("Unsupported value type");
     }
   }
 
 
+
   @override
   Widget build(BuildContext context) {
+    if (!_prefsInitialized) {
+      // Return a loading indicator or fallback widget while _prefs is being initialized
+      return CircularProgressIndicator(); // Example of a loading indicator
+    }
     return Scaffold(
       appBar: CustomAppBar(
         title: 'SlideShow',
@@ -97,16 +108,13 @@ class _SlideshowPageState extends State<SlideshowPage> with WidgetsBindingObserv
                       ),
                     ),
                     CupertinoSwitch(
-                      value: on,
+                      value: on = _prefs.getBool('slideState') ?? false,
                       activeColor: Colors.lightBlue,
                       onChanged: (bool value) {
                         setState(() {
                           on = value;
-                          if (!on) {
-                            // Reset selected source and category when turning off
-                            selectedSource = '';
-                            selectedCategory = '';
-                          }
+                          slideState = on;
+                          _saveSelectedValue('slideState', value);
                         });
                       },
                     ),
@@ -131,6 +139,7 @@ class _SlideshowPageState extends State<SlideshowPage> with WidgetsBindingObserv
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: CustomDropdown<String>(
+                            initialItem:  _prefs.getString('selectedSource') ?? _list1.first,
                             items: _list1,
                             hintText: 'Select Source',
                             closedHeaderPadding: const EdgeInsets.all(15),
@@ -168,66 +177,13 @@ class _SlideshowPageState extends State<SlideshowPage> with WidgetsBindingObserv
                             ),
                             onChanged: (String value) {
                               setState(() {
-                                selectedSource = value;
+
+                               _saveSelectedValue('selectedSource', value);
                               });
                             },
                           ),
                         ),
                       ),
-                      if (selectedSource == 'Category') // Show dropdown only when 'Category' is selected
-                        Padding(
-                          padding: const EdgeInsets.only(top: 50, left: 10, right: 10),
-                          child: Container(
-                            height: 60,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Color.fromRGBO(33, 33, 33, 1),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: CustomDropdown<String>(
-                              items: _list2,
-                              hintText: 'Select Category',
-                              closedHeaderPadding: const EdgeInsets.all(15),
-                              maxlines: 2,
-                              listItemBuilder: (context, item, isSelected, onItemSelect) {
-                                return Text(
-                                  item.toString(),
-                                  style: const TextStyle(color: Colors.white, fontSize: 16),
-                                );
-                              },
-                              decoration: CustomDropdownDecoration(
-                                closedFillColor: Color.fromRGBO(33, 33, 33, 1),
-                                expandedFillColor: Color.fromRGBO(33, 33, 33, 1),
-                                hintStyle: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
-                                headerStyle: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                noResultFoundStyle: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
-                                closedSuffixIcon: const Icon(
-                                  Icons.keyboard_arrow_down,
-                                  color: Colors.white,
-                                ),
-                                expandedSuffixIcon: const Icon(
-                                  Icons.keyboard_arrow_up,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              onChanged: (String value) {
-                                setState(() {
-                                  selectedCategory = value;
-                                });
-                              },
-                            ),
-                          ),
-                        ),
                       Padding(
                         padding: const EdgeInsets.only(top: 50, left: 10, right: 10),
                         child: Container(
@@ -238,8 +194,9 @@ class _SlideshowPageState extends State<SlideshowPage> with WidgetsBindingObserv
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: CustomDropdown<String>(
-                            items: _list3,
-                            hintText: 'Select Duration',
+                            initialItem: _prefs.getString('selectedTarget') ?? _list2.first,
+                            items: _list2,
+                            hintText: 'Select Target',
                             closedHeaderPadding: const EdgeInsets.all(15),
                             maxlines: 2,
                             listItemBuilder: (context, item, isSelected, onItemSelect) {
@@ -276,7 +233,7 @@ class _SlideshowPageState extends State<SlideshowPage> with WidgetsBindingObserv
                             onChanged: (String value) {
                               setState(() {
                                 // Handle enabling/disabling of NumberPicker based on the selected source
-                                selectedSource = value;
+                                _saveSelectedValue('selectedTarget', value);
                               });
                             },
                           ),
@@ -295,8 +252,9 @@ class _SlideshowPageState extends State<SlideshowPage> with WidgetsBindingObserv
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: CustomDropdown<String>(
+                                  initialItem: _prefs.getString('selectedType') ?? _list3.first,
                                   items: _list3,
-                                  hintText: 'Select Duration',
+                                  hintText: 'Select Type',
                                   closedHeaderPadding: const EdgeInsets.all(15),
                                   maxlines: 2,
                                   listItemBuilder: (context, item, isSelected, onItemSelect) {
@@ -332,8 +290,8 @@ class _SlideshowPageState extends State<SlideshowPage> with WidgetsBindingObserv
                                   ),
                                   onChanged: (String value) {
                                     setState(() {
-                                      // Handle enabling/disabling of NumberPicker based on the selected source
-                                      selectedSource = value;
+                                          selectedType = value;
+                                          _saveSelectedValue('selectedType', value);
                                     });
                                   },
                                 ),
@@ -343,14 +301,16 @@ class _SlideshowPageState extends State<SlideshowPage> with WidgetsBindingObserv
                             Expanded(
                               flex: 1,
                               child: IgnorePointer(
-                                ignoring: selectedSource == 'On Unlocking',
+                                ignoring: selectedType == 'On Unlocking',
                                 child: NumberPicker(
                                   textStyle: TextStyle(color: Colors.white70, fontSize: 15),
                                   selectedTextStyle: TextStyle(color: Colors.white, fontSize: 30),
-                                  value: _currentValue,
+                                  value: _prefs.getInt('duration') ?? 1,
                                   minValue: 0,
                                   maxValue: 100,
-                                  onChanged: (value) => setState(() => _currentValue = value),
+                                   onChanged: (value) => setState(() {
+                                     _saveSelectedValue('duration', value);
+                                  }),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
                                     border: Border.all(color: Colors.white),
