@@ -238,8 +238,8 @@ void _initPrefs() async {
                             },
                           ),
                         ),
-                      ),
-                      Padding(
+                      )
+/*                      Padding(
                         padding: const EdgeInsets.only(top: 50, left: 10, right: 10),
                         child: Row(
                           children: [
@@ -320,7 +320,7 @@ void _initPrefs() async {
                             ),
                           ],
                         ),
-                      ),
+                      ),*/
                     ],
                   ),
                 ),

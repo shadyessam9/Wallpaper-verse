@@ -1,59 +1,34 @@
 package com.example.wallpaper_verse
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.content.Context
-import android.os.Build
-import android.os.Bundle
-import androidx.annotation.NonNull
+
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
+import android.os.Bundle
 import io.flutter.plugin.common.MethodChannel
+import android.content.SharedPreferences
+import android.preference.PreferenceManager
+
 
 class MainActivity : FlutterActivity() {
 
-    private val CHANNEL = "com.example.wallpaper_verse/bgtsk"
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // Initialize method channel
-        MethodChannel(flutterEngine?.dartExecutor?.binaryMessenger, CHANNEL)
-                .setMethodCallHandler { call, result ->
-                    // Handle method calls from Flutter
-                    if (call.method == "createNotification") {
-                        val params = call.arguments as? HashMap<*, *>
-                        val stringValue = params?.get("stringValue") as? String
-                        val intValue = params?.get("intValue") as? Int
-                        // Create a notification with received values
-                        createNotification(stringValue, intValue)
-                        result.success(null)
-                    } else {
-                        result.notImplemented()
-                    }
-                }
-    }
-
-    private fun createNotification(stringValue: String?, intValue: Int?) {
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-          val channelId = "com.example.wallpaper_verse.bgtsk"
-          val channelName = "Background Task Channel"
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val channel = NotificationChannel(channelId, channelName, importance)
-            notificationManager.createNotificationChannel(channel)
-        }
-
-        val notificationId = 1 // Unique ID for the notification
-        val notificationBuilder = NotificationCompat.Builder(this, channelId)
-                .setSmallIcon(R.drawable.notification_icon)
-                .setContentTitle("Your Notification Title")
-                .setContentText("String value: $stringValue, Int value: $intValue")
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-
-        notificationManager.notify(notificationId, notificationBuilder.build())
-    }
-
-    override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        // Configure the Flutter engine
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.example.wallpaper_verse/unlock_task").setMethodCallHandler { call, result ->
+            when (call.method) {
+                "activateUnlockTask" -> {
+                    // Handle method call to activate unlock task
+                    val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+                    preferences.edit().putBoolean("unlock_task_active", true).apply()
+                    result.success(null)
+                }
+                "deactivateUnlockTask" -> {
+                    // Handle method call to deactivate unlock task
+                    // You can set the 'unlock_task_active' preference to false here
+                    result.success(null)
+                }
+                else -> {
+                    result.notImplemented()
+                }
+            }
+        }
     }
 }

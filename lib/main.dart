@@ -22,33 +22,38 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
 
- @override
+final MethodChannel _channel = MethodChannel('com.example.wallpaper_verse/unlock_task');
+
+Future<void> activateUnlockTask() async {
+  try {
+    await _channel.invokeMethod('activateUnlockTask');
+  } on PlatformException catch (e) {
+    print("Failed to activate unlock task: '${e.message}'.");
+  }
+}
+
+Future<void> deactivateUnlockTask() async {
+  try {
+    await _channel.invokeMethod('deactivateUnlockTask');
+  } on PlatformException catch (e) {
+    print("Failed to deactivate unlock task: '${e.message}'.");
+  }
+}
+
+ static const platform = MethodChannel('com.example.wallpaper_verse/unlock_task');
+
+  @override
   void initState() {
     super.initState();
-    // Retrieve shared preferences stored values
-    retrieveSharedPrefsValues();
+    activateUnlockTask();
+    platform.setMethodCallHandler((call) async {
+      if (call.method == 'deviceUnlocked') {
+        // Device is unlocked, print message
+        print('Device unlocked');
+      }
+    });
   }
 
-  void retrieveSharedPrefsValues() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? stringValue = prefs.getString('selectedSource');
-    int? intValue = prefs.getInt('duration');
-
-    // Send shared preferences stored values to background task
-    sendValuesToBackgroundTask(stringValue!, intValue!);
-  }
-
-  void sendValuesToBackgroundTask(String stringValue, int intValue) {
-    const platform = MethodChannel('com.example.wallpaper_verse/bgtsk');
-    try {
-      platform.invokeMethod('startBackgroundTask', {
-        'stringValue': stringValue,
-        'intValue': intValue,
-      });
-    } on PlatformException catch (e) {
-      print("Failed to start background task: '${e.message}'.");
-    }
-  }
 
 
   @override
