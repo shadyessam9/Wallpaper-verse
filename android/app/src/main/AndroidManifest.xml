@@ -3,6 +3,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.MODIFY_PHONE_STATE" />
+    <uses-permission android:name="android.permission.SET_WALLPAPER"/>
     <application
         android:requestLegacyExternalStorage="true"
         android:label="Wallpaper Verse"
@@ -36,20 +37,23 @@
             android:value="2" />
 
 
-            <receiver
-                android:name="com.example.wallpaper_verse.UnlockBroadcastReceiver"
-                android:enabled="true"
-                android:exported="true"> <!-- Specify android:exported attribute here -->
-                <intent-filter android:priority="999">
-                    <action android:name="android.intent.action.USER_PRESENT" />
-                </intent-filter>
-            </receiver>
+ <!-- BroadcastReceiver -->
+        <receiver
+            android:name=".UnlockBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <!-- Intent filter for device unlock event -->
+            <intent-filter android:priority="999">
+                <action android:name="android.intent.action.USER_PRESENT" />
+            </intent-filter>
+        </receiver>
 
+        <!-- Service -->
+        <service
+            android:name=".WallpaperService"
+            android:enabled="true"
+            android:exported="true" />
 
-              <service
-              android:name=".UnlockBackgroundService"
-                    android:enabled="true"
-                    android:exported="true" />
 
     </application>
 </manifest>
