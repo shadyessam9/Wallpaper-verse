@@ -22,20 +22,12 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
 
- static const platform = MethodChannel('com.example.wallpaper_verse/unlock_task');
+
 
   @override
   void initState() {
     super.initState();
-    platform.setMethodCallHandler((call) async {
-      if (call.method == 'deviceUnlocked') {
-        // Device is unlocked, print message
-        print('Device unlocked');
-      }
-    });
   }
-
-
 
   @override
   Widget build(BuildContext context) {

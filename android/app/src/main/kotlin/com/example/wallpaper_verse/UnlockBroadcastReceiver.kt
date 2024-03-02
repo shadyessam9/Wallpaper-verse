@@ -17,6 +17,13 @@ import java.net.URL
 import android.app.Service
 import android.content.IntentFilter
 import android.os.IBinder
+import android.content.Context.MODE_PRIVATE
+
+
+
+
+
+
 
 
 
@@ -24,16 +31,101 @@ import android.os.IBinder
 class UnlockBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         if (intent?.action == Intent.ACTION_USER_PRESENT) {
-            val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val isTaskActive = preferences.getBoolean("unlock_task_active", false)
-            if (isTaskActive) {
-                Log.d("UnlockBroadcastReceiver", "Device unlocked")
-                val wallpaperURL = "https://source.unsplash.com/user/c_v_r/1900x800"
-                ChangeWallpaperTask(context).execute(wallpaperURL)
+            Log.d("UnlockBroadcastReceiver", "Device unlocked")
+
+            context?.let { ctx ->
+                val prefs = ctx.getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
+                val slideState = prefs.getBoolean("flutter.slideState",false)
+                val selectedSource = prefs.getString("flutter.selectedSource", null)
+                val selectedTarget = prefs.getString("flutter.selectedTarget", null)
+
+                if(slideState){
+                    if(selectedSource=="Random"){
+                        if(selectedTarget=="HomePage")
+                        {
+                        val wallpaperURL = "https://wallpaperversaapp.000webhostapp.com/waapi/randomslideshow.php"
+                        ChangeHomeWallpaperTask(ctx).execute(wallpaperURL)
+                        }
+                        if(selectedTarget=="LockScreen")
+                        {
+                        val wallpaperURL = "https://wallpaperversaapp.000webhostapp.com/waapi/randomslideshow.php"
+                        ChangeLockWallpaperTask(ctx).execute(wallpaperURL)
+                        }
+                        if(selectedTarget=="HomePage & LockScreen")
+                        {
+                        val wallpaperURL = "https://wallpaperversaapp.000webhostapp.com/waapi/randomslideshow.php"
+                        ChangeWallpaperTask(ctx).execute(wallpaperURL)
+                        }
+                    };
+                    if(selectedSource=="Favorites"){
+                        if(selectedTarget=="HomePage")
+                        {
+                        val wallpaperURL = "https://wallpaperversaapp.000webhostapp.com/waapi/userslideshowapi.php?user_id=1"
+                        ChangeHomeWallpaperTask(ctx).execute(wallpaperURL)
+                        }
+                        if(selectedTarget=="LockScreen")
+                        {
+                        val wallpaperURL = "https://wallpaperversaapp.000webhostapp.com/waapi/userslideshowapi.php?user_id=1"
+                        ChangeLockWallpaperTask(ctx).execute(wallpaperURL)
+                        }
+                        if(selectedTarget=="HomePage & LockScreen")
+                        {
+                        val wallpaperURL = "https://wallpaperversaapp.000webhostapp.com/waapi/userslideshowapi.php?user_id=1"
+                        ChangeWallpaperTask(ctx).execute(wallpaperURL)
+                        }
+                    }
+                }else{}
             }
         }
     }
 }
+
+class ChangeHomeWallpaperTask(private val context: Context?) : AsyncTask<String, Void, Boolean>() {
+
+    override fun doInBackground(vararg params: String?): Boolean {
+        val wallpaperURL = params[0]
+
+        try {
+            // Download image from URL
+            val inputStream = URL(wallpaperURL).openStream()
+            val bitmap = BitmapFactory.decodeStream(inputStream)
+
+            // Set downloaded image as wallpaper
+            val wallpaperManager = WallpaperManager.getInstance(context)
+            wallpaperManager.setBitmap(bitmap, null, true, WallpaperManager.FLAG_SYSTEM)
+
+            return true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return false
+        }
+    }
+}
+
+
+class ChangeLockWallpaperTask(private val context: Context?) : AsyncTask<String, Void, Boolean>() {
+
+    override fun doInBackground(vararg params: String?): Boolean {
+        val wallpaperURL = params[0]
+
+        try {
+            // Download image from URL
+            val inputStream = URL(wallpaperURL).openStream()
+            val bitmap = BitmapFactory.decodeStream(inputStream)
+
+            // Set downloaded image as wallpaper
+            val wallpaperManager = WallpaperManager.getInstance(context)
+            wallpaperManager.setBitmap(bitmap, null, true, WallpaperManager.FLAG_LOCK)
+
+
+            return true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return false
+        }
+    }
+}
+
 
 class ChangeWallpaperTask(private val context: Context?) : AsyncTask<String, Void, Boolean>() {
 

@@ -3,8 +3,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import '../subpages/upload_wallpaper.dart';
+import '../subpages/wallpaper_preview.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/container_widget.dart'; // Import the ImageUploadPage
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class StudioPage extends StatefulWidget {
   const StudioPage({Key? key}) : super(key: key);
@@ -15,6 +18,24 @@ class StudioPage extends StatefulWidget {
 
 class _StudioPage extends State<StudioPage> {
   final picker = ImagePicker();
+  List<dynamic> wallpapers = [];
+
+  Future<void> fetchData() async {
+    try {
+      final response = await http.get(Uri.parse('https://wallpaperversaapp.000webhostapp.com/waapi/userstudio.php?author_code=1'));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          wallpapers = data;
+        });
+      } else {
+        throw Exception('Failed to load data. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
+  }
 
   Future<File?> _getImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -23,6 +44,14 @@ class _StudioPage extends State<StudioPage> {
     }
     return null;
   }
+
+
+     @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -38,34 +67,34 @@ class _StudioPage extends State<StudioPage> {
           children: [
             Container(
               padding: EdgeInsets.symmetric(horizontal: 5),
-              child:StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('All wallpapers')
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return GridView.count(
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 5,
-                      crossAxisSpacing: 5,
-                      childAspectRatio: MediaQuery.of(context).size.width /
-                          (MediaQuery.of(context).size.height * 0.7),
-                      children: List.generate(snapshot.data!.docs.length, (index) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 5),
-                          child: ContainerWidget(
-                            imageUrl: snapshot.data!.docs[index]['imageUrl'],
+              child: GridView.count(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                crossAxisCount: 2,
+                mainAxisSpacing: 5,
+                crossAxisSpacing: 5,
+                childAspectRatio: MediaQuery.of(context).size.width / (MediaQuery.of(context).size.height * 0.7),
+                children: List.generate(wallpapers.length, (index) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ImagePreviewer(
+                              wallpaper_code: wallpapers[index]['wallpaper_code'].toString(),
+                            ),
                           ),
                         );
-                      }),
-                    );
-                  } else {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                },
-              ),
+                      },
+                      child: ContainerWidget(
+                        imageUrl: wallpapers[index]['wallpaper_src'],
+                      ),
+                    ),
+                  );
+                }),
+              )
             ),
           ],
         ),

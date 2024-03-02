@@ -42,11 +42,6 @@ class _SlideshowPageState extends State<SlideshowPage> {
     'HomePage & LockScreen'
   ];
 
-  static const List<String> _list3 = [
-    'On Unlocking',
-    'Hours',
-    'Days',
-  ];
 
 
 
@@ -239,88 +234,6 @@ void _initPrefs() async {
                           ),
                         ),
                       )
-/*                      Padding(
-                        padding: const EdgeInsets.only(top: 50, left: 10, right: 10),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 2,
-                              child: Container(
-                                height: 60,
-                                decoration: BoxDecoration(
-                                  color: Color.fromRGBO(33, 33, 33, 1),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: CustomDropdown<String>(
-                                  initialItem: _prefs.getString('selectedType') ?? _list3.first,
-                                  items: _list3,
-                                  hintText: 'Select Type',
-                                  closedHeaderPadding: const EdgeInsets.all(15),
-                                  maxlines: 2,
-                                  listItemBuilder: (context, item, isSelected, onItemSelect) {
-                                    return Text(
-                                      item.toString(),
-                                      style: const TextStyle(color: Colors.white, fontSize: 16),
-                                    );
-                                  },
-                                  decoration: CustomDropdownDecoration(
-                                    closedFillColor: Color.fromRGBO(33, 33, 33, 1),
-                                    expandedFillColor: Color.fromRGBO(33, 33, 33, 1),
-                                    hintStyle: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                    ),
-                                    headerStyle: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                    noResultFoundStyle: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                    ),
-                                    closedSuffixIcon: const Icon(
-                                      Icons.keyboard_arrow_down,
-                                      color: Colors.white,
-                                    ),
-                                    expandedSuffixIcon: const Icon(
-                                      Icons.keyboard_arrow_up,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  onChanged: (String value) {
-                                    setState(() {
-                                          selectedType = value;
-                                          _saveSelectedValue('selectedType', value);
-                                    });
-                                  },
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 10), // Add some space between the widgets
-                            Expanded(
-                              flex: 1,
-                              child: IgnorePointer(
-                                ignoring: selectedType == 'On Unlocking',
-                                child: NumberPicker(
-                                  textStyle: TextStyle(color: Colors.white70, fontSize: 15),
-                                  selectedTextStyle: TextStyle(color: Colors.white, fontSize: 30),
-                                  value: _prefs.getInt('duration') ?? 1,
-                                  minValue: 0,
-                                  maxValue: 100,
-                                   onChanged: (value) => setState(() {
-                                     _saveSelectedValue('duration', value);
-                                  }),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(color: Colors.white),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),*/
                     ],
                   ),
                 ),
