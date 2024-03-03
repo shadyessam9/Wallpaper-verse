@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import "package:async/async.dart";
+import 'package:native_shared_preferences/original_shared_preferences/original_shared_preferences.dart';
 import 'package:path/path.dart';
 
 import '../widgets/app_bar.dart';
@@ -20,10 +21,41 @@ class _ImageUploadPageState extends State<ImageUploadPage> {
   TextEditingController _titleController = TextEditingController();
   TextEditingController _descriptionController = TextEditingController();
   String _selectedCategory = 'Category 1';
+  List<Map<String, dynamic>> _categories = [];
+
+
+    Future<void> _fetchCategories() async {
+    try {
+      final response = await http.get(
+          Uri.parse('https://wallpaperversaapp.000webhostapp.com/waapi/getcategories.php'));
+
+      if (response.statusCode == 200) {
+        List<dynamic> categoriesJson = json.decode(response.body);
+        setState(() {
+          _categories = categoriesJson.map((category) => {
+            'code': category['category_code'],
+            'name': category['category_name']
+          }).toList();
+          if (_categories.isNotEmpty) {
+            _selectedCategory = _categories[0]['name'];
+          }
+        });
+      } else {
+        print('Failed to fetch categories');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
 
   Future<void> _uploadImage(File imageFile) async {
 
-    // ignore: deprecated_member_use
+            String title = _titleController.text;
+            String description = _descriptionController.text;
+            String categoryCode = _categories.firstWhere((category) => category['name'] == _selectedCategory)['code'].toString();
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            String? id = prefs.getString('id');
+
             var stream= new http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
             var length= await imageFile.length();
             var uri = Uri.parse("https://wallpaperversaapp.000webhostapp.com/waapi/uploadwallpaper.php");
@@ -33,10 +65,10 @@ class _ImageUploadPageState extends State<ImageUploadPage> {
             var multipartFile = new http.MultipartFile("image", stream, length, filename: basename(imageFile.path));
 
             request.files.add(multipartFile);
-            request.fields['title'] = "a";
-            request.fields['description'] = "b";
-            request.fields['category'] = "1";
-            request.fields['authorcode'] = "1";
+            request.fields['title'] = title;
+            request.fields['description'] = description;
+            request.fields['category'] = categoryCode;
+            request.fields['authorcode'] = id!;
 
             var respond = await request.send();
             if(respond.statusCode==200){
@@ -47,6 +79,12 @@ class _ImageUploadPageState extends State<ImageUploadPage> {
 
   }
 
+
+   @override
+  void initState() {
+    super.initState();
+    _fetchCategories();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,30 +108,94 @@ class _ImageUploadPageState extends State<ImageUploadPage> {
                   fit: BoxFit.cover,
                 ),
               ),
-            TextFormField(
-              controller: _titleController,
-              decoration: InputDecoration(labelText: 'Title'),
-            ),
-            TextFormField(
-              controller: _descriptionController,
-              decoration: InputDecoration(labelText: 'Description'),
-            ),
-            DropdownButton<String>(
-              value: _selectedCategory,
-              onChanged: (newValue) {
-                setState(() {
-                  _selectedCategory = newValue!;
-                });
-              },
-              items: <String>['Category 1', 'Category 2', 'Category 3']
-                  .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-            ),
+                SizedBox(height: 50),
+                TextFormField(
+                  controller: _titleController,
+                  style: TextStyle(color: Colors.white), // Set text color to white
+                  decoration: InputDecoration(
+                    labelText: 'Title', // Label text for the title text field
+                    labelStyle: TextStyle(color: Colors.white), // Set label text color to white
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: Colors.white), // Set initial border color to white
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: Colors.white), // Set focused border color to white
+                    ),
+                    suffixIcon: Icon(
+                      Icons.title,
+                      color: Colors.white, // Set icon color to white
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
+                TextFormField(
+                  controller: _descriptionController,
+                  style: TextStyle(color: Colors.white), // Set text color to white
+                  decoration: InputDecoration(
+                    labelText: 'Description', // Label text for the description text field
+                    labelStyle: TextStyle(color: Colors.white), // Set label text color to white
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: Colors.white), // Set initial border color to white
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: Colors.white), // Set focused border color to white
+                    ),
+                    suffixIcon: Icon(
+                      Icons.description,
+                      color: Colors.white, // Set icon color to white
+                    ),
+                  ),
+                ),
+               SizedBox(height: 20),
+               DropdownButtonFormField<String>(
+                value: _selectedCategory,
+                onChanged: (newValue) {
+                  setState(() {
+                    _selectedCategory = newValue!;
+                  });
+                },
+                items: _categories.map<DropdownMenuItem<String>>((category) {
+                  return DropdownMenuItem<String>(
+                    value: category['name'],
+                    child: Text(category['name']),
+                  );
+                }).toList(),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Color.fromRGBO(33, 33, 33, 1),
+                  hintStyle: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: Colors.white),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: Colors.white),
+                  ),
+                  suffixIcon: Icon(
+                    Icons.keyboard_arrow_down,
+                    color: Colors.white,
+                  ),
+                ),
+                style: TextStyle(color: Colors.white),
+                dropdownColor: Color.fromRGBO(33, 33, 33, 1),
+              ),
+            SizedBox(height: 20),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color.fromRGBO(33, 33, 33, 1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                elevation: 10,
+              ),
               onPressed: () {
                 if (widget.imageFile != null) {
                   _uploadImage(widget.imageFile!);
@@ -103,7 +205,13 @@ class _ImageUploadPageState extends State<ImageUploadPage> {
                   ));
                 }
               },
-              child: Text('Upload'),
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Text(
+                  'Upload',
+                  style: TextStyle(fontSize: 20,color: Colors.white),
+                ),
+              )
             ),
           ],
         ),

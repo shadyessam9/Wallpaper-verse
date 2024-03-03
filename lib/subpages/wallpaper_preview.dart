@@ -23,15 +23,25 @@ class ImagePreviewer extends StatefulWidget {
 }
 
 class _ImagePreviewerState extends State<ImagePreviewer> {
-   late Map<String, dynamic> imageData;
-   bool isWallpaperSaved = false;
-   bool isFavorite = false;
+  late Map<String, dynamic> imageData;
+  bool isWallpaperSaved = false;
+  bool isFavorite = false;
 
-
+  @override
+  void initState() {
+    super.initState();
+    imageData = {};
+    // Check local storage for favorite status
+    checkFavoriteLocally();
+  }
 
   Future<Map<String, dynamic>> fetchImageData() async {
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? id = prefs.getString('id');
+
     try {
-      final response = await http.get(Uri.parse('https://wallpaperversaapp.000webhostapp.com/waapi/wallpaperpreview.php?wallpaper_code=${widget.wallpaper_code}&&user_code=1'));
+      final response = await http.get(Uri.parse('https://wallpaperversaapp.000webhostapp.com/waapi/wallpaperpreview.php?wallpaper_code=${widget.wallpaper_code}&&user_code=${id}'));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         return data;
@@ -44,57 +54,40 @@ class _ImagePreviewerState extends State<ImagePreviewer> {
     }
   }
 
+  Future<void> checkFavoriteLocally() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isFavorite = prefs.getBool(widget.wallpaper_code) ?? false;
+    });
+  }
 
-   Future<void> checkFavorite() async {
+  Future<void> setWallpaper(int location) async {
     try {
-      final response = await http.get(Uri.parse('https://wallpaperversaapp.000webhostapp.com/waapi/checkfavorites.php?wallpaper_code=${widget.wallpaper_code}&user_code=1'));
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        setState(() {
-          isFavorite = data['exists'] ?? false;
-        });
+      String url = imageData['wallpaper_src'] ?? '';
+      var response = await http.get(Uri.parse(url));
+      Uint8List bytes = response.bodyBytes;
+
+      // Save the image bytes to a file
+      final directory = await getApplicationDocumentsDirectory();
+      final filePath = '${directory.path}/wallpaper.jpg';
+      File file = File(filePath);
+      await file.writeAsBytes(bytes);
+
+      // Set wallpaper from the saved file
+      final bool result = await WallpaperManager.setWallpaperFromFile(filePath, location);
+      if (result) {
+        Fluttertoast.showToast(msg: 'Wallpaper set successfully');
       } else {
-        throw Exception('Failed to check favorite. Status code: ${response.statusCode}');
+        Fluttertoast.showToast(msg: 'Failed to set wallpaper');
       }
     } catch (e) {
-      print('Error checking favorite: $e');
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    imageData = {};
-  }
-
-
-Future<void> setWallpaper(int location) async {
-  try {
-    String url = imageData['wallpaper_src'] ?? '';
-    var response = await http.get(Uri.parse(url));
-    Uint8List bytes = response.bodyBytes;
-
-    // Save the image bytes to a file
-    final directory = await getApplicationDocumentsDirectory();
-    final filePath = '${directory.path}/wallpaper.jpg';
-    File file = File(filePath);
-    await file.writeAsBytes(bytes);
-
-    // Set wallpaper from the saved file
-    final bool result = await WallpaperManager.setWallpaperFromFile(filePath, location);
-    if (result) {
-      Fluttertoast.showToast(msg: 'Wallpaper set successfully');
-    } else {
+      print('Error setting wallpaper: $e');
       Fluttertoast.showToast(msg: 'Failed to set wallpaper');
     }
-  } catch (e) {
-    print('Error setting wallpaper: $e');
-    Fluttertoast.showToast(msg: 'Failed to set wallpaper');
   }
-}
 
-
-void toggleFavorite() async {
+  void toggleFavorite() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     if (isFavorite) {
       // If already marked as favorite, remove from favorites
       final response = await http.get(Uri.parse(
@@ -105,8 +98,10 @@ void toggleFavorite() async {
         setState(() {
           isFavorite = false;
         });
+        // Update local storage
+        prefs.setBool(widget.wallpaper_code, false);
       } else {
-        Fluttertoast.showToast(msg:'Failed to remove  from favorites.');
+        Fluttertoast.showToast(msg: 'Failed to remove  from favorites.');
       }
     } else {
       // If not marked as favorite, add to favorites
@@ -114,16 +109,17 @@ void toggleFavorite() async {
           'https://wallpaperversaapp.000webhostapp.com/waapi/addfavorite.php?wallpaper_code=${widget.wallpaper_code}&user_code=1'));
 
       if (response.statusCode == 200) {
-        Fluttertoast.showToast(msg:' added to favorites successfully.');
+        Fluttertoast.showToast(msg: 'added to favorites successfully.');
         setState(() {
           isFavorite = true;
         });
+        // Update local storage
+        prefs.setBool(widget.wallpaper_code, true);
       } else {
-        Fluttertoast.showToast(msg:'Failed to add image to favorites.');
+        Fluttertoast.showToast(msg: 'Failed to add image to favorites.');
       }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -150,16 +146,16 @@ void toggleFavorite() async {
                   Padding(
                     padding: EdgeInsets.only(left: 10),
                     child: Row(
-                      children: [
-                        IconButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          icon: Icon(Icons.arrow_circle_left,size: 40),
-                          color: Colors.white,
-                        ),
-                        // You can add more widgets here as needed
-                      ]
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            icon: Icon(Icons.arrow_circle_left,size: 40),
+                            color: Colors.white,
+                          ),
+                          // You can add more widgets here as needed
+                        ]
                     )
                   ),
                   SizedBox(height: 20),
@@ -189,7 +185,7 @@ void toggleFavorite() async {
                         SizedBox(height: 10),
                         Text(
                           imageData['description'] ?? 'Description',
-                           textAlign: TextAlign.start,
+                          textAlign: TextAlign.start,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -203,81 +199,81 @@ void toggleFavorite() async {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                         IconButton(
-                              onPressed: toggleFavorite,
-                              icon: Icon(
-                                isFavorite ? Icons.favorite : Icons.favorite_border,
-                                color: isFavorite ? Colors.red : Colors.white,
-                              ),
-                            ),
-                         IconButton(
-                        onPressed: () {
-                          // Show pop-up menu
-                          showMenu(
-                            context: context,
-                            color: Color.fromRGBO(33, 33, 33, 1),
-                            position: RelativeRect.fromLTRB(100, 100, 0, 0), // Adjust position as needed
-                            items: <PopupMenuEntry>[
-                              PopupMenuItem(
-                                child: Text("Set as Home Screen",style: TextStyle(color: Colors.white)),
-                                value: WallpaperManager.HOME_SCREEN,
-                              ),
-                              PopupMenuItem(
-                                child: Text("Set as Lock Screen",style: TextStyle(color: Colors.white)),
-                                value: WallpaperManager.LOCK_SCREEN,
-                              ),
-                              PopupMenuItem(
-                                child: Text("Set as Both",style: TextStyle(color: Colors.white)),
-                                value: WallpaperManager.BOTH_SCREEN,
-                              ),
-                            ],
-                          ).then((selectedValue) {
-                            // Handle selected value
-                            if (selectedValue != null) {
-                              // Set wallpaper based on selected value
-                              setWallpaper(selectedValue);
-                            }
-                          });
-                        },
-                        icon: Icon(Icons.send_to_mobile_rounded),
-                        color: Colors.white,
-                      ),
-                       GestureDetector(
-                            onTap: () async {
-                              try {
-                                final response = await http.get(Uri.parse(imageData['wallpaper_src'] ?? ''));
-                                final bytes = response.bodyBytes;
-
-                                // Save image to gallery
-                                final result = await ImageGallerySaver.saveImage(Uint8List.fromList(bytes));
-                                if (result['isSuccess']) {
-                                  Fluttertoast.showToast(msg: 'Image saved to gallery');
-                                } else {
-                                  Fluttertoast.showToast(msg: 'Failed to save image to gallery');
-                                }
-                              } catch (e) {
-                                print('Error downloading image: $e');
-                                Fluttertoast.showToast(msg: 'Failed to download image');
+                        IconButton(
+                          onPressed: toggleFavorite,
+                          icon: Icon(
+                            isFavorite ? Icons.favorite : Icons.favorite_border,
+                            color: isFavorite ? Colors.red : Colors.white,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            // Show pop-up menu
+                            showMenu(
+                              context: context,
+                              color: Color.fromRGBO(33, 33, 33, 1),
+                              position: RelativeRect.fromLTRB(100, 100, 0, 0), // Adjust position as needed
+                              items: <PopupMenuEntry>[
+                                PopupMenuItem(
+                                  child: Text("Set as Home Screen",style: TextStyle(color: Colors.white)),
+                                  value: WallpaperManager.HOME_SCREEN,
+                                ),
+                                PopupMenuItem(
+                                  child: Text("Set as Lock Screen",style: TextStyle(color: Colors.white)),
+                                  value: WallpaperManager.LOCK_SCREEN,
+                                ),
+                                PopupMenuItem(
+                                  child: Text("Set as Both",style: TextStyle(color: Colors.white)),
+                                  value: WallpaperManager.BOTH_SCREEN,
+                                ),
+                              ],
+                            ).then((selectedValue) {
+                              // Handle selected value
+                              if (selectedValue != null) {
+                                // Set wallpaper based on selected value
+                                setWallpaper(selectedValue);
                               }
-                            },
-                            child: Container(
-                              height: 50,
-                              width: 200,
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  'Download',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                  ),
+                            });
+                          },
+                          icon: Icon(Icons.send_to_mobile_rounded),
+                          color: Colors.white,
+                        ),
+                        GestureDetector(
+                          onTap: () async {
+                            try {
+                              final response = await http.get(Uri.parse(imageData['wallpaper_src'] ?? ''));
+                              final bytes = response.bodyBytes;
+
+                              // Save image to gallery
+                              final result = await ImageGallerySaver.saveImage(Uint8List.fromList(bytes));
+                              if (result['isSuccess']) {
+                                Fluttertoast.showToast(msg: 'Image saved to gallery');
+                              } else {
+                                Fluttertoast.showToast(msg: 'Failed to save image to gallery');
+                              }
+                            } catch (e) {
+                              print('Error downloading image: $e');
+                              Fluttertoast.showToast(msg: 'Failed to download image');
+                            }
+                          },
+                          child: Container(
+                            height: 50,
+                            width: 200,
+                            decoration: BoxDecoration(
+                              color: Colors.green,
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: Center(
+                              child: Text(
+                                'Download',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
                                 ),
                               ),
                             ),
                           ),
+                        ),
                       ],
                     ),
                   ),
