@@ -59,7 +59,7 @@ dependencies:
   path_provider: ^2.1.2
   image_gallery_saver: ^2.0.1
   flutter_background_service: ^5.0.5
-  native_shared_preferences: ^2.0.9
+#  native_shared_preferences: ^2.0.9
  # is_lock_screen: ^2.0.0
 
 

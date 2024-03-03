@@ -38,40 +38,42 @@ class UnlockBroadcastReceiver : BroadcastReceiver() {
                 val slideState = prefs.getBoolean("flutter.slideState",false)
                 val selectedSource = prefs.getString("flutter.selectedSource", null)
                 val selectedTarget = prefs.getString("flutter.selectedTarget", null)
+                val id = prefs.getString("flutter.id", null)
+                Log.d("UnlockBroadcastReceiver", "${id}")
 
                 if(slideState){
                     if(selectedSource=="Random"){
                         if(selectedTarget=="HomePage")
                         {
-                        val wallpaperURL = "https://wallpaperversaapp.000webhostapp.com/waapi/randomslideshow.php"
-                        ChangeHomeWallpaperTask(ctx).execute(wallpaperURL)
+                        val wallpaperURL1 = "https://wallpaperversaapp.000webhostapp.com/waapi/randomslideshow.php"
+                        ChangeHomeWallpaperTask(ctx).execute(wallpaperURL1)
                         }
                         if(selectedTarget=="LockScreen")
                         {
-                        val wallpaperURL = "https://wallpaperversaapp.000webhostapp.com/waapi/randomslideshow.php"
-                        ChangeLockWallpaperTask(ctx).execute(wallpaperURL)
+                        val wallpaperURL2 = "https://wallpaperversaapp.000webhostapp.com/waapi/randomslideshow.php"
+                        ChangeLockWallpaperTask(ctx).execute(wallpaperURL2)
                         }
                         if(selectedTarget=="HomePage & LockScreen")
                         {
-                        val wallpaperURL = "https://wallpaperversaapp.000webhostapp.com/waapi/randomslideshow.php"
-                        ChangeWallpaperTask(ctx).execute(wallpaperURL)
+                        val wallpaperURL3 = "https://wallpaperversaapp.000webhostapp.com/waapi/randomslideshow.php"
+                        ChangeWallpaperTask(ctx).execute(wallpaperURL3)
                         }
                     };
                     if(selectedSource=="Favorites"){
                         if(selectedTarget=="HomePage")
                         {
-                        val wallpaperURL = "https://wallpaperversaapp.000webhostapp.com/waapi/userslideshowapi.php?user_id=1"
-                        ChangeHomeWallpaperTask(ctx).execute(wallpaperURL)
+                        val wallpaperURL4 = "https://wallpaperversaapp.000webhostapp.com/waapi/userslideshowapi.php?user_id=${id}"
+                        ChangeHomeWallpaperTask(ctx).execute(wallpaperURL4)
                         }
                         if(selectedTarget=="LockScreen")
                         {
-                        val wallpaperURL = "https://wallpaperversaapp.000webhostapp.com/waapi/userslideshowapi.php?user_id=1"
-                        ChangeLockWallpaperTask(ctx).execute(wallpaperURL)
+                        val wallpaperURL5 = "https://wallpaperversaapp.000webhostapp.com/waapi/userslideshowapi.php?user_id=${id}"
+                        ChangeLockWallpaperTask(ctx).execute(wallpaperURL5)
                         }
                         if(selectedTarget=="HomePage & LockScreen")
                         {
-                        val wallpaperURL = "https://wallpaperversaapp.000webhostapp.com/waapi/userslideshowapi.php?user_id=1"
-                        ChangeWallpaperTask(ctx).execute(wallpaperURL)
+                        val wallpaperURL6 = "https://wallpaperversaapp.000webhostapp.com/waapi/userslideshowapi.php?user_id=${id}"
+                        ChangeWallpaperTask(ctx).execute(wallpaperURL6)
                         }
                     }
                 }else{}

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:native_shared_preferences/original_shared_preferences/original_shared_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wallpaper_verse/pages/register.dart';
 import '../main_home.dart';
 import '../widgets/app_bar.dart';

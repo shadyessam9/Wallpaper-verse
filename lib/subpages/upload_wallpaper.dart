@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import "package:async/async.dart";
-import 'package:native_shared_preferences/original_shared_preferences/original_shared_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path/path.dart';
 
 import '../widgets/app_bar.dart';
@@ -48,36 +48,36 @@ class _ImageUploadPageState extends State<ImageUploadPage> {
     }
   }
 
-  Future<void> _uploadImage(File imageFile) async {
+ Future<bool> _uploadImage(File imageFile) async {
+  String title = _titleController.text;
+  String description = _descriptionController.text;
+  String categoryCode = _categories.firstWhere((category) => category['name'] == _selectedCategory)['code'].toString();
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? id = prefs.getString('id');
 
-            String title = _titleController.text;
-            String description = _descriptionController.text;
-            String categoryCode = _categories.firstWhere((category) => category['name'] == _selectedCategory)['code'].toString();
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-            String? id = prefs.getString('id');
+  var stream = new http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
+  var length = await imageFile.length();
+  var uri = Uri.parse("https://wallpaperversaapp.000webhostapp.com/waapi/uploadwallpaper.php");
 
-            var stream= new http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
-            var length= await imageFile.length();
-            var uri = Uri.parse("https://wallpaperversaapp.000webhostapp.com/waapi/uploadwallpaper.php");
+  var request = new http.MultipartRequest("POST", uri);
 
-            var request = new http.MultipartRequest("POST", uri);
+  var multipartFile = new http.MultipartFile("image", stream, length, filename: basename(imageFile.path));
 
-            var multipartFile = new http.MultipartFile("image", stream, length, filename: basename(imageFile.path));
+  request.files.add(multipartFile);
+  request.fields['title'] = title;
+  request.fields['description'] = description;
+  request.fields['category'] = categoryCode;
+  request.fields['authorcode'] = id!;
 
-            request.files.add(multipartFile);
-            request.fields['title'] = title;
-            request.fields['description'] = description;
-            request.fields['category'] = categoryCode;
-            request.fields['authorcode'] = id!;
-
-            var respond = await request.send();
-            if(respond.statusCode==200){
-              print("Image Uploaded");
-            }else{
-              print("Upload Failed");
-            }
-
+  var response = await request.send();
+  if (response.statusCode == 200) {
+    print("Image Uploaded");
+    return true; // Return true indicating success
+  } else {
+    print("Upload Failed");
+    return false; // Return false indicating failure
   }
+}
 
 
    @override
@@ -196,15 +196,20 @@ class _ImageUploadPageState extends State<ImageUploadPage> {
                 ),
                 elevation: 10,
               ),
-              onPressed: () {
-                if (widget.imageFile != null) {
-                  _uploadImage(widget.imageFile!);
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text('Please select an image'),
-                  ));
-                }
-              },
+                    onPressed: () async {
+                      if (widget.imageFile != null) {
+                        bool success = await _uploadImage(widget.imageFile!);
+                        if (success) {
+                          Navigator.pop(context);
+                        } else {
+                          // Handle failure if needed
+                        }
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text('Please select an image'),
+                        ));
+                      }
+                    },
               child: Padding(
                 padding: const EdgeInsets.all(10),
                 child: Text(

@@ -87,11 +87,14 @@ class _ImagePreviewerState extends State<ImagePreviewer> {
   }
 
   void toggleFavorite() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+       String? id = prefs.getString('id');
+
     if (isFavorite) {
       // If already marked as favorite, remove from favorites
       final response = await http.get(Uri.parse(
-          'https://wallpaperversaapp.000webhostapp.com/waapi/removefavorite.php?wallpaper_code=${widget.wallpaper_code}&user_code=1'));
+          'https://wallpaperversaapp.000webhostapp.com/waapi/removefavorite.php?wallpaper_code=${widget.wallpaper_code}&user_code=${1}'));
 
       if (response.statusCode == 200) {
         Fluttertoast.showToast(msg: 'removed from favorites');
@@ -106,7 +109,7 @@ class _ImagePreviewerState extends State<ImagePreviewer> {
     } else {
       // If not marked as favorite, add to favorites
       final response = await http.get(Uri.parse(
-          'https://wallpaperversaapp.000webhostapp.com/waapi/addfavorite.php?wallpaper_code=${widget.wallpaper_code}&user_code=1'));
+          'https://wallpaperversaapp.000webhostapp.com/waapi/addfavorite.php?wallpaper_code=${widget.wallpaper_code}&user_code=${id}'));
 
       if (response.statusCode == 200) {
         Fluttertoast.showToast(msg: 'added to favorites successfully.');

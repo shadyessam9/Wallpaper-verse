@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../subpages/upload_wallpaper.dart';
 import '../subpages/wallpaper_preview.dart';
 import '../widgets/app_bar.dart';
@@ -21,8 +22,12 @@ class _StudioPage extends State<StudioPage> {
   List<dynamic> wallpapers = [];
 
   Future<void> fetchData() async {
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? id = prefs.getString('id');
+
     try {
-      final response = await http.get(Uri.parse('https://wallpaperversaapp.000webhostapp.com/waapi/userstudio.php?author_code=1'));
+      final response = await http.get(Uri.parse('https://wallpaperversaapp.000webhostapp.com/waapi/userstudio.php?author_code=${id}'));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);

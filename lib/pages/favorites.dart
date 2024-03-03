@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../subpages/wallpaper_preview.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/container_widget.dart';
@@ -13,11 +15,17 @@ class FavoritesPage extends StatefulWidget {
 }
 
 class _FavoritesPage extends State<FavoritesPage> {
+
+
    List<dynamic> wallpapers = [];
 
   Future<void> fetchData() async {
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+     String? id = prefs.getString('id');
+
     try {
-      final response = await http.get(Uri.parse('https://wallpaperversaapp.000webhostapp.com/waapi/userfavorites.php?user_code=1'));
+      final response = await http.get(Uri.parse('https://wallpaperversaapp.000webhostapp.com/waapi/userfavorites.php?user_code=${id}'));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);

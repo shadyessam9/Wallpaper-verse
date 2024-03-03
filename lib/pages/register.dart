@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:native_shared_preferences/original_shared_preferences/original_shared_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main_home.dart';
 
@@ -41,7 +41,7 @@ class _RegisterPageState extends State<RegisterPage> {
         prefs.setString('name', name);
         prefs.setString('email', email);
         prefs.setString('password', password);
-        prefs.setString('userCode', responseData['user_code'].toString());
+        prefs.setString('id', responseData['user_code'].toString());
 
         // Navigate to home page
         Navigator.pushReplacement(
