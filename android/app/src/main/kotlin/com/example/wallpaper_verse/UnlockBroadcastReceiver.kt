@@ -19,30 +19,20 @@ import android.content.IntentFilter
 import android.os.IBinder
 import android.content.Context.MODE_PRIVATE
 
-
-
-
-
-
-
-
-
-
 class UnlockBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         if (intent?.action == Intent.ACTION_USER_PRESENT) {
-            Log.d("UnlockBroadcastReceiver", "Device unlocked")
-
             context?.let { ctx ->
                 val prefs = ctx.getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
                 val slideState = prefs.getBoolean("flutter.slideState",false)
                 val selectedSource = prefs.getString("flutter.selectedSource", null)
                 val selectedTarget = prefs.getString("flutter.selectedTarget", null)
+                val durationType = prefs.getString("flutter.durationType", null)
                 val id = prefs.getString("flutter.id", null)
-                Log.d("UnlockBroadcastReceiver", "${id}")
-
                 if(slideState){
-                    if(selectedSource=="Random"){
+               if(durationType == "On UnLocking"){
+                     Log.d("UnlockBroadcastReceiver", "Device unlocked")
+                        if(selectedSource=="Random"){
                         if(selectedTarget=="HomePage")
                         {
                         val wallpaperURL1 = "https://wallpaperversaapp.000webhostapp.com/waapi/randomslideshow.php"
@@ -76,6 +66,7 @@ class UnlockBroadcastReceiver : BroadcastReceiver() {
                         ChangeWallpaperTask(ctx).execute(wallpaperURL6)
                         }
                     }
+               }
                 }else{}
             }
         }

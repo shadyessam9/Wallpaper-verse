@@ -20,26 +20,29 @@ class _HomePageState extends State<HomePage> {
   bool isLoading = true;
 
   Future<void> fetchData() async {
-    try {
-      final response = await http.get(Uri.parse('https://wallpaperversaapp.000webhostapp.com/waapi/homepage.php'));
+  try {
+    final response = await http.get(Uri.parse('https://wallpaperversaapp.000webhostapp.com/waapi/homepage.php'));
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        setState(() {
-          categories = data['categories'];
-          wallpapers = data['images'];
-          isLoading = false;
-        });
-      } else {
-        throw Exception('Failed to load data. Status code: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error fetching data: $e');
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final List<dynamic> fetchedCategories = data['categories'];
+      final List<dynamic> fetchedWallpapers = data['images'];
+
       setState(() {
+        categories = fetchedCategories;
+        wallpapers = fetchedWallpapers;
         isLoading = false;
       });
+    } else {
+      throw Exception('Failed to load data. Status code: ${response.statusCode}');
     }
+  } catch (e) {
+    print('Error fetching data: $e');
+    setState(() {
+      isLoading = false;
+    });
   }
+}
 
   @override
   void initState() {
@@ -51,115 +54,127 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-          title: 'Home', isSettingsPage: false
+        title: 'Home',
+        isSettingsPage: false,
       ),
       backgroundColor: Colors.black,
-      body: SingleChildScrollView(
-        padding: EdgeInsets.only(top: 20),
-        physics: AlwaysScrollableScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Categories Section
-            Container(
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                        child: Text(
-                          'CATEGORIES',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                    height: MediaQuery.of(context).size.height * 0.20,
-                    child: isLoading ? Center(child: CircularProgressIndicator()) : ListView.builder(
-                      itemCount: categories.length,
-                      scrollDirection: Axis.horizontal,
-                      physics: AlwaysScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => CategoryList(category_code: categories[index]['category_code'].toString(),category_name: categories[index]['category_name'])),
-                            );
-                          },
-                          child: CategoriesContainerWidget(
-                              title: categories[index]['category_name'],
-                              imageUrl: categories[index]['category_cover_src']
-                          )
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // Discover Wallpapers Section
-            Container(
-              padding: EdgeInsets.only(bottom: 100),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                        child: Text(
-                          'DISCOVER WALLPAPERS',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 5),
-                    child: isLoading ? Center(child: CircularProgressIndicator()) : GridView.count(
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 5,
-                      crossAxisSpacing: 5,
-                      childAspectRatio: MediaQuery.of(context).size.width / (MediaQuery.of(context).size.height * 0.7),
-                      children: List.generate(wallpapers.length, (index) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 5),
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ImagePreviewer(
-                                    wallpaper_code: wallpapers[index]['wallpaper_code'].toString(),
-                                  ),
-                                ),
-                              );
-                            },
-                            child: ContainerWidget(
-                              imageUrl: wallpapers[index]['wallpaper_src'],
+      body: RefreshIndicator(
+        onRefresh: () => fetchData(),
+        child: SingleChildScrollView(
+          physics: AlwaysScrollableScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Categories Section
+              Container(
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                          child: Text(
+                            'CATEGORIES',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
                             ),
                           ),
-                        );
-                      }),
+                        )
+                      ],
                     ),
-                  ),
-                ],
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                      height: MediaQuery.of(context).size.height * 0.20,
+                      child: isLoading
+                          ? Center(child: CircularProgressIndicator())
+                          : ListView.builder(
+                              itemCount: categories.length,
+                              scrollDirection: Axis.horizontal,
+                              physics: AlwaysScrollableScrollPhysics(),
+                              itemBuilder: (context, index) {
+                                return GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => CategoryList(
+                                            category_code: categories[index]['category_code'].toString(),
+                                            category_name: categories[index]['category_name'],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: CategoriesContainerWidget(
+                                      title: categories[index]['category_name'],
+                                      imageUrl: categories[index]['category_cover_src'],
+                                    ));
+                              },
+                            ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+              // Discover Wallpapers Section
+              Container(
+                padding: EdgeInsets.only(bottom: 100),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                          child: Text(
+                            'DISCOVER WALLPAPERS',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 5),
+                      child: isLoading
+                          ? Center(child: CircularProgressIndicator())
+                          : GridView.count(
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              crossAxisCount: 2,
+                              mainAxisSpacing: 5,
+                              crossAxisSpacing: 5,
+                              childAspectRatio: MediaQuery.of(context).size.width / (MediaQuery.of(context).size.height * 0.7),
+                              children: List.generate(wallpapers.length, (index) {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 5),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ImagePreviewer(
+                                            wallpaper_code: wallpapers[index]['wallpaper_code'].toString(),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: ContainerWidget(
+                                      imageUrl: wallpapers[index]['wallpaper_src'],
+                                    ),
+                                  ),
+                                );
+                              }),
+                            ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
+

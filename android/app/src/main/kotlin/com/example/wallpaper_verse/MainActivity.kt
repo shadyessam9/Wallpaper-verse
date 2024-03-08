@@ -16,6 +16,7 @@ class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         startService(Intent(this, WallpaperService::class.java))
+        startService(Intent(this, HourTimerService::class.java))
+        startService(Intent(this, DayTimerService::class.java))
     }
-
 }

@@ -1,14 +1,16 @@
 import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:multi_image_picker/multi_image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 import '../subpages/upload_wallpaper.dart';
 import '../subpages/wallpaper_preview.dart';
 import '../widgets/app_bar.dart';
-import '../widgets/container_widget.dart'; // Import the ImageUploadPage
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import '../widgets/container_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class StudioPage extends StatefulWidget {
   const StudioPage({Key? key}) : super(key: key);
@@ -22,9 +24,8 @@ class _StudioPage extends State<StudioPage> {
   List<dynamic> wallpapers = [];
 
   Future<void> fetchData() async {
-
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? id = prefs.getString('id');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? id = prefs.getString('id');
 
     try {
       final response = await http.get(Uri.parse('https://wallpaperversaapp.000webhostapp.com/waapi/userstudio.php?author_code=${id}'));
@@ -42,27 +43,54 @@ class _StudioPage extends State<StudioPage> {
     }
   }
 
-  Future<File?> _getImage() async {
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      return File(pickedFile.path);
+  Future<List<File>?> _getImages() async {
+    List<File>? selectedImages = [];
+    List<Asset> resultList = [];
+
+    try {
+      resultList = await MultiImagePicker.pickImages(
+        maxImages: 5, // Maximum number of images to pick
+        enableCamera: true, // Enable camera option
+        selectedAssets: [], // Initially selected assets (empty in this case)
+        cupertinoOptions: CupertinoOptions(
+          selectionFillColor: "#FFC107", // Customize selection fill color for iOS
+          selectionTextColor: "#000000", // Customize selection text color for iOS
+          selectionCharacter: "✓", // Customize selection character for iOS
+        ),
+        materialOptions: MaterialOptions(
+          actionBarColor: "#FFC107", // Customize action bar color for Android
+          actionBarTitle: "Select Images", // Customize action bar title for Android
+          allViewTitle: "All Images", // Customize all view title for Android
+          useDetailsView: false, // Show/hide details view for Android
+          selectCircleStrokeColor: "#000000", // Customize select circle stroke color for Android
+        ),
+      );
+
+      for (var asset in resultList) {
+        final byteData = await asset.getByteData();
+        final buffer = byteData!.buffer;
+        final tempFile = await File('${(await getTemporaryDirectory()).path}/${asset.name}').writeAsBytes(buffer.asUint8List());
+        selectedImages.add(tempFile);
+      }
+    } catch (e) {
+      print('Error selecting images: $e');
     }
-    return null;
+
+    return selectedImages.isNotEmpty ? selectedImages : null;
   }
 
-
-     @override
+  @override
   void initState() {
     super.initState();
     fetchData();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:CustomAppBar(
-          title: 'My Syudio', isSettingsPage: false
+      appBar: CustomAppBar(
+        title: 'My Studio',
+        isSettingsPage: false,
       ),
       backgroundColor: Colors.black,
       body: SingleChildScrollView(
@@ -99,24 +127,23 @@ class _StudioPage extends State<StudioPage> {
                     ),
                   );
                 }),
-              )
+              ),
             ),
           ],
         ),
       ),
-      floatingActionButton:Padding(
-        padding: EdgeInsets.all(16.0), // Adjust the padding as needed
+      floatingActionButton: Padding(
+        padding: EdgeInsets.all(16.0),
         child: FloatingActionButton(
           onPressed: () async {
-            File? selectedImage = await _getImage();
-            if (selectedImage != null) {
+            List<File>? selectedImages = await _getImages();
+            if (selectedImages != null) {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ImageUploadPage(imageFile: selectedImage),
+                  builder: (context) => ImageUploadPage(imageFiles: selectedImages),
                 ),
               );
-
             }
           },
           child: Icon(Icons.add),

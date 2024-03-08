@@ -56,5 +56,22 @@
             android:exported="true" />
 
 
+        <service
+            android:name=".TimerService"
+            android:enabled="true"
+            android:exported="true" />
+
+        <service
+            android:name=".HourTimerService"
+            android:enabled="true"
+            android:exported="true" />
+
+
+        <service
+            android:name=".DayTimerService"
+            android:enabled="true"
+            android:exported="true" />
+
+
     </application>
 </manifest>

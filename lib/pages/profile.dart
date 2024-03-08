@@ -11,10 +11,7 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  static const List<String> _list1 = [
-    'Favorites',
-    'Random',
-  ];
+
 
   @override
   Widget build(BuildContext context) {
@@ -59,23 +56,9 @@ class _SettingsPageState extends State<SettingsPage> {
               padding: const EdgeInsets.only(top: 20, left: 10, right: 10),
               child: Container(
                 color: Color.fromRGBO(33, 33, 33, 1),
-                child: TextFormField(
-                  initialValue: 'Name',
+                child: Text(
+                  'Name',
                   style: TextStyle(color: Colors.white), // Set text color to white
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: Colors.white), // Set initial border color to white
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: Colors.white), // Set focused border color to white
-                    ),
-                    suffixIcon: Icon(
-                      Icons.person,
-                      color: Colors.white, // Set icon color to white
-                    ),
-                  ),
                 ),
               ),
             ),
@@ -83,23 +66,9 @@ class _SettingsPageState extends State<SettingsPage> {
               padding: const EdgeInsets.only(top: 20, left: 10, right: 10),
               child: Container(
                 color: Color.fromRGBO(33, 33, 33, 1),
-                child: TextFormField(
-                  initialValue: 'Email',
+                child: Text(
+                  'Email',
                   style: TextStyle(color: Colors.white), // Set text color to white
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: Colors.white), // Set initial border color to white
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: Colors.white), // Set focused border color to white
-                    ),
-                    suffixIcon: Icon(
-                      Icons.email,
-                      color: Colors.white, // Set icon color to white
-                    ),
-                  ),
                 ),
               ),
             ),
@@ -107,100 +76,45 @@ class _SettingsPageState extends State<SettingsPage> {
               padding: const EdgeInsets.only(top: 20, left: 10, right: 10),
               child: Container(
                 color: Color.fromRGBO(33, 33, 33, 1),
-                child: TextFormField(
-                  initialValue: 'Password',
+                child: Text(
+                  'Password',
                   style: TextStyle(color: Colors.white), // Set text color to white
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: Colors.white), // Set initial border color to white
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: Colors.white), // Set focused border color to white
-                    ),
-                    suffixIcon: Icon(
-                      Icons.password,
-                      color: Colors.white, // Set icon color to white
-                    ),
-                  ),
                 ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 20, left: 10, right: 10),
-              child: CustomDropdown<String>(
-                items: _list1,
-                hintText: 'Select Language',
-                closedHeaderPadding: const EdgeInsets.all(15),
-                maxlines: 2,
-                listItemBuilder: (context, item, isSelected, onItemSelect) {
-                  return Text(
-                    item.toString(),
-                    style: const TextStyle(color: Colors.white, fontSize: 16),
-                  );
-                },
-                decoration: CustomDropdownDecoration(
-                  closedFillColor: Color.fromRGBO(33, 33, 33, 1),
-                  expandedFillColor: Color.fromRGBO(33, 33, 33, 1),
-                  hintStyle: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
-                  headerStyle: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  noResultFoundStyle: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
-                  closedSuffixIcon: const Icon(
-                    Icons.keyboard_arrow_down,
-                    color: Colors.white,
-                  ),
-                  expandedSuffixIcon: const Icon(
-                    Icons.keyboard_arrow_up,
-                    color: Colors.white,
-                  ),
-                ),
-                onChanged: (String) {},
               ),
             ),
             Padding(
               padding: const EdgeInsets.only(top: 20),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                  onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                primary: Colors.red,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                elevation: 10,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Text(
-                  'Log Out',
-                  style: TextStyle(fontSize: 20,color: Colors.white),
-                ),
-              ),
-            )
-                ]
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.red,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        elevation: 10,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Text(
+                          'Log Out',
+                          style: TextStyle(fontSize: 20,color: Colors.white),
+                        ),
+                      ),
+                    )
+                  ]
               )
             ),Padding(
                 padding: const EdgeInsets.only(top: 50),
                 child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                     Column(children: [
-                       Text('WallpaperVerse ®', style: TextStyle(fontSize: 15,color: Colors.white)),
-                       Text('Version 1.0', style: TextStyle(fontSize: 15,color: Colors.white))
-                     ])
+                      Column(children: [
+                        Text('WallpaperVerse ®', style: TextStyle(fontSize: 15,color: Colors.white)),
+                        Text('Version 1.0', style: TextStyle(fontSize: 15,color: Colors.white))
+                      ])
                     ]
                 )
             )

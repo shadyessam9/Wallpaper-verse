@@ -42,6 +42,12 @@ class _SlideshowPageState extends State<SlideshowPage> {
     'HomePage & LockScreen'
   ];
 
+    static const List<String> _list3 = [
+    'On UnLocking',
+    'Every Hour',
+    'Every Day'
+  ];
+
 
 
 
@@ -233,7 +239,61 @@ void _initPrefs() async {
                             },
                           ),
                         ),
-                      )
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 50, left: 10, right: 10),
+                        child: Container(
+                          height: 60,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Color.fromRGBO(33, 33, 33, 1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: CustomDropdown<String>(
+                            initialItem:  _prefs.getString('durationType') ?? _list3.first,
+                            items: _list3,
+                            hintText: 'Select Duration',
+                            closedHeaderPadding: const EdgeInsets.all(15),
+                            maxlines: 2,
+                            listItemBuilder: (context, item, isSelected, onItemSelect) {
+                              return Text(
+                                item.toString(),
+                                style: const TextStyle(color: Colors.white, fontSize: 16),
+                              );
+                            },
+                            decoration: CustomDropdownDecoration(
+                              closedFillColor: Color.fromRGBO(33, 33, 33, 1),
+                              expandedFillColor: Color.fromRGBO(33, 33, 33, 1),
+                              hintStyle: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                              headerStyle: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              noResultFoundStyle: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                              closedSuffixIcon: const Icon(
+                                Icons.keyboard_arrow_down,
+                                color: Colors.white,
+                              ),
+                              expandedSuffixIcon: const Icon(
+                                Icons.keyboard_arrow_up,
+                                color: Colors.white,
+                              ),
+                            ),
+                            onChanged: (String value) {
+                              setState(() {
+                               _saveSelectedValue('durationType', value);
+                              });
+                            },
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
