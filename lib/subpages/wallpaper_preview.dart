@@ -94,7 +94,7 @@ class _ImagePreviewerState extends State<ImagePreviewer> {
     if (isFavorite) {
       // If already marked as favorite, remove from favorites
       final response = await http.get(Uri.parse(
-          'https://wallpaperversaapp.000webhostapp.com/waapi/removefavorite.php?wallpaper_code=${widget.wallpaper_code}&user_code=${1}'));
+          'https://wallpaperversaapp.000webhostapp.com/waapi/removefavorite.php?wallpaper_code=${widget.wallpaper_code}&user_code=${id}'));
 
       if (response.statusCode == 200) {
         Fluttertoast.showToast(msg: 'removed from favorites');

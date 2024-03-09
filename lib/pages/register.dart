@@ -22,8 +22,6 @@ class _RegisterPageState extends State<RegisterPage> {
     final String email = _emailController.text.trim();
     final String password = _passwordController.text.trim();
 
-
-
     final response = await http.post(
       Uri.parse('https://wallpaperversaapp.000webhostapp.com/waapi/register.php'), // Replace with your API URL
       body: {
@@ -34,22 +32,19 @@ class _RegisterPageState extends State<RegisterPage> {
     );
 
     if (response.statusCode == 200) {
-            final responseData = json.decode(response.body);
+      final responseData = json.decode(response.body);
       if (responseData['status'] == 'success') {
-        // Save user data to shared preferences
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setString('name', name);
         prefs.setString('email', email);
         prefs.setString('password', password);
         prefs.setString('id', responseData['user_code'].toString());
 
-        // Navigate to home page
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => MainHome()),
         );
       } else {
-        // Registration failed, show error message
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -69,22 +64,41 @@ class _RegisterPageState extends State<RegisterPage> {
         );
       }
     } else {
-      // API request failed
+      // Handle connection error only
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Error'),
-            content: Text('Failed to connect to the server.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('OK'),
-              ),
-            ],
-          );
+              title: Text('Error'),
+              content: Padding(
+                          padding: EdgeInsets.all(10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.error_outline,
+                                color: Colors.red,
+                                size: 30,
+                              ),
+                              SizedBox(width: 10),
+                              Flexible( // Wrap the Text widget with Flexible
+                                child: Text(
+                                  'Failed to connect to the server.',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
         },
       );
     }
@@ -93,6 +107,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: Color.fromRGBO(33, 33, 33, 1),
       body: Center(
         child: SingleChildScrollView(
@@ -115,7 +130,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     controller: _nameController,
                     style: TextStyle(color: Colors.white),
                     decoration: InputDecoration(
-                       labelText: 'Name',
+                      labelText: 'Name',
                       labelStyle: TextStyle(color: Colors.white),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -141,7 +156,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     controller: _emailController,
                     style: TextStyle(color: Colors.white),
                     decoration: InputDecoration(
-                       labelText: 'Email',
+                      labelText: 'Email',
                       labelStyle: TextStyle(color: Colors.white),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -168,7 +183,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     obscureText: true,
                     style: TextStyle(color: Colors.white),
                     decoration: InputDecoration(
-                       labelText: 'Password',
+                      labelText: 'Password',
                       labelStyle: TextStyle(color: Colors.white),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),

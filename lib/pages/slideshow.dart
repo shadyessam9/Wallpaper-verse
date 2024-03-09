@@ -110,7 +110,7 @@ void _initPrefs() async {
                     ),
                     CupertinoSwitch(
                       value: on = _prefs.getBool('slideState') ?? false,
-                      activeColor: Colors.lightBlue,
+                      activeColor: Colors.deepPurpleAccent,
                       onChanged: (bool value) {
                         setState(() {
                           on = value;

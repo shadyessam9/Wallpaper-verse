@@ -16,41 +16,100 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false; // Add a boolean to track loading state
 
   Future<void> _login() async {
     final String email = _emailController.text.trim();
     final String password = _passwordController.text.trim();
 
+    setState(() {
+      _isLoading = true; // Set loading state to true when starting login
+    });
 
-     var url =  Uri.parse('https://wallpaperversaapp.000webhostapp.com/waapi/login.php');
-
+    var url = Uri.parse('https://wallpaperversaapp.000webhostapp.com/waapi/login.php');
     var data = {'email': email, 'password': password};
 
-    var response = await http.post(url, body: json.encode(data));
+    try {
+      var response = await http.post(url, body: json.encode(data));
 
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        if (responseData['status'] == 'success') {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setString('Name', responseData['user_data']['name']);
+          prefs.setString('email', email);
+          prefs.setString('password', password);
+          prefs.setString('id', responseData['user_data']['user_code'].toString());
 
-    if (response.statusCode == 200) {
-           final responseData = jsonDecode(response.body);
-      if (responseData['status'] == 'success') {
-        // Save user data to shared preferences
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        prefs.setString('Name', responseData['user_data']['name']);
-        prefs.setString('email', email);
-        prefs.setString('password', password);
-        prefs.setString('id', responseData['user_data']['user_code'].toString());
-        // Navigate to home page
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => MainHome()),
-        );
-      }else {
-        // Login failed, show error message
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => MainHome()),
+          );
+        } else {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                backgroundColor: Color.fromRGBO(33, 33, 33, 1),
+                title: Text('Login Failed'),
+                content: Padding(
+                          padding: EdgeInsets.all(10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.error_outline,
+                                color: Colors.red,
+                                size: 30,
+                              ),
+                              SizedBox(width: 10),
+                              Flexible( // Wrap the Text widget with Flexible
+                                child: Text(
+                                  responseData['message'],
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+      } else {
         showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text('Login Failed'),
-              content: Text(responseData['message']),
+              title: Text('Error'),
+              content: Padding(
+                          padding: EdgeInsets.all(10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.error_outline,
+                                color: Colors.red,
+                                size: 30,
+                              ),
+                              SizedBox(width: 10),
+                              Flexible( // Wrap the Text widget with Flexible
+                                child: Text(
+                                  'Failed to connect to the server.',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
               actions: [
                 TextButton(
                   onPressed: () {
@@ -63,31 +122,19 @@ class _LoginPageState extends State<LoginPage> {
           },
         );
       }
-    } else {
-      // API request failed
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Error'),
-            content: Text('Failed to connect to the server.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
+    } catch (e) {
+      print('Error: $e');
+    } finally {
+      setState(() {
+        _isLoading = false; // Set loading state to false when login process is complete
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: Color.fromRGBO(33, 33, 33, 1),
       body: Center(
         child: SingleChildScrollView(
@@ -110,7 +157,7 @@ class _LoginPageState extends State<LoginPage> {
                     controller: _emailController,
                     style: TextStyle(color: Colors.white),
                     decoration: InputDecoration(
-                       labelText: 'Email',
+                      labelText: 'Email',
                       labelStyle: TextStyle(color: Colors.white),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -137,7 +184,7 @@ class _LoginPageState extends State<LoginPage> {
                     obscureText: true,
                     style: TextStyle(color: Colors.white),
                     decoration: InputDecoration(
-                       labelText: 'Password',
+                      labelText: 'Password',
                       labelStyle: TextStyle(color: Colors.white),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -161,7 +208,7 @@ class _LoginPageState extends State<LoginPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ElevatedButton(
-                      onPressed: _login,
+                      onPressed: _isLoading ? null : _login, // Disable button while loading
                       style: ElevatedButton.styleFrom(
                         primary: Colors.green,
                         shape: RoundedRectangleBorder(
@@ -180,6 +227,12 @@ class _LoginPageState extends State<LoginPage> {
                   ],
                 ),
               ),
+              // Add loading indicator when _isLoading is true
+              if (_isLoading)
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: CircularProgressIndicator(),
+                ),
               Padding(
                 padding: const EdgeInsets.only(top: 40),
                 child: Row(

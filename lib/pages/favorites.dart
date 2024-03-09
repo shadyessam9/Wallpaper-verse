@@ -1,28 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 import '../subpages/wallpaper_preview.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/container_widget.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class FavoritesPage extends StatefulWidget {
   const FavoritesPage({Key? key}) : super(key: key);
 
   @override
-  State<FavoritesPage> createState() => _FavoritesPage();
+  State<FavoritesPage> createState() => _FavoritesPageState();
 }
 
-class _FavoritesPage extends State<FavoritesPage> {
-
-
-   List<dynamic> wallpapers = [];
+class _FavoritesPageState extends State<FavoritesPage> {
+  List<dynamic> wallpapers = [];
 
   Future<void> fetchData() async {
-
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-     String? id = prefs.getString('id');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? id = prefs.getString('id');
 
     try {
       final response = await http.get(Uri.parse('https://wallpaperversaapp.000webhostapp.com/waapi/userfavorites.php?user_code=${id}'));
@@ -40,7 +37,7 @@ class _FavoritesPage extends State<FavoritesPage> {
     }
   }
 
-    @override
+  @override
   void initState() {
     super.initState();
     fetchData();
@@ -49,13 +46,14 @@ class _FavoritesPage extends State<FavoritesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:CustomAppBar(
-        title: 'My Favorites', isSettingsPage: false
+      appBar: CustomAppBar(
+        title: 'My Favorites',
+        isSettingsPage: false,
       ),
       backgroundColor: Colors.black,
       body: SingleChildScrollView(
         padding: EdgeInsets.only(top: 20),
-        physics: AlwaysScrollableScrollPhysics(), // Use AlwaysScrollableScrollPhysics for smoother and faster scrolling
+        physics: AlwaysScrollableScrollPhysics(),
         child: Column(
           children: [
             Container(
@@ -90,7 +88,13 @@ class _FavoritesPage extends State<FavoritesPage> {
               ),
             )
           ],
-        )
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          fetchData();
+        },
+        child: Icon(Icons.refresh),
       ),
     );
   }

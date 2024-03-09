@@ -79,9 +79,7 @@ class _SplashScreenState extends State<SplashScreen> {
               width: 100, // Adjust the width as needed
             ),
             SizedBox(height: 20), // Add some space between logo and loading ring
-            CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-            ),
+            CircularProgressIndicator()
           ],
         ),
       ),

@@ -20,29 +20,29 @@ class _HomePageState extends State<HomePage> {
   bool isLoading = true;
 
   Future<void> fetchData() async {
-  try {
-    final response = await http.get(Uri.parse('https://wallpaperversaapp.000webhostapp.com/waapi/homepage.php'));
+    try {
+      final response = await http.get(Uri.parse('https://wallpaperversaapp.000webhostapp.com/waapi/homepage.php'));
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final List<dynamic> fetchedCategories = data['categories'];
-      final List<dynamic> fetchedWallpapers = data['images'];
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final List<dynamic> fetchedCategories = data['categories'];
+        final List<dynamic> fetchedWallpapers = data['images'];
 
+        setState(() {
+          categories = fetchedCategories;
+          wallpapers = fetchedWallpapers;
+          isLoading = false;
+        });
+      } else {
+        throw Exception('Failed to load data. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching data: $e');
       setState(() {
-        categories = fetchedCategories;
-        wallpapers = fetchedWallpapers;
         isLoading = false;
       });
-    } else {
-      throw Exception('Failed to load data. Status code: ${response.statusCode}');
     }
-  } catch (e) {
-    print('Error fetching data: $e');
-    setState(() {
-      isLoading = false;
-    });
   }
-}
 
   @override
   void initState() {
@@ -137,7 +137,7 @@ class _HomePageState extends State<HomePage> {
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 5),
                       child: isLoading
-                          ? Center(child: CircularProgressIndicator())
+                          ? Padding(padding:EdgeInsets.all(150),child: CircularProgressIndicator()) // Center the loading indicator
                           : GridView.count(
                               shrinkWrap: true,
                               physics: NeverScrollableScrollPhysics(),
@@ -177,4 +177,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
