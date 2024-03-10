@@ -64,10 +64,6 @@ class _StudioPage extends State<StudioPage> {
     return selectedImages.isNotEmpty ? selectedImages : null;
   }
 
-  Future<void> _refreshData() async {
-    await fetchData();
-  }
-
   @override
   void initState() {
     super.initState();
@@ -82,67 +78,68 @@ class _StudioPage extends State<StudioPage> {
         isSettingsPage: false,
       ),
       backgroundColor: Colors.black,
-      body: RefreshIndicator(
-        onRefresh: _refreshData,
-        child: SingleChildScrollView(
-          padding: EdgeInsets.only(top: 20),
-          physics: AlwaysScrollableScrollPhysics(),
-          child: Column(
-            children: [
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 5),
-                child: GridView.count(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 5,
-                  crossAxisSpacing: 5,
-                  childAspectRatio: MediaQuery.of(context).size.width / (MediaQuery.of(context).size.height * 0.7),
-                  children: List.generate(wallpapers.length, (index) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 5),
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ImagePreviewer(
-                                wallpaper_code: wallpapers[index]['wallpaper_code'].toString(),
-                              ),
+      body: SingleChildScrollView(
+        physics: AlwaysScrollableScrollPhysics(),
+        child: Column(
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 5 , vertical: 5),
+              child: GridView.count(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                crossAxisCount: 2,
+                mainAxisSpacing: 5,
+                crossAxisSpacing: 5,
+                childAspectRatio: MediaQuery.of(context).size.width / (MediaQuery.of(context).size.height * 0.7),
+                children: List.generate(wallpapers.length, (index) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ImagePreviewer(
+                              wallpaper_code: wallpapers[index]['wallpaper_code'].toString(),
                             ),
-                          );
-                        },
-                        child: ContainerWidget(
-                          imageUrl: wallpapers[index]['wallpaper_src'],
-                        ),
+                          ),
+                        );
+                      },
+                      child: ContainerWidget(
+                        imageUrl: wallpapers[index]['wallpaper_src'],
                       ),
-                    );
-                  }),
-                ),
+                    ),
+                  );
+                }),
               ),
-            ],
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: () async {
+              List<File>? selectedImages = await _getImages();
+              if (selectedImages != null) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ImageUploadPage(imageFiles: selectedImages),
+                  ),
+                );
+              }
+            },
+            child: Icon(Icons.add)
           ),
-        ),
+          SizedBox(height: 15),
+          FloatingActionButton(
+            onPressed: fetchData,
+            child: Icon(Icons.refresh)
+          ),
+        ],
       ),
-      floatingActionButton: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: FloatingActionButton(
-          onPressed: () async {
-            List<File>? selectedImages = await _getImages();
-            if (selectedImages != null) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ImageUploadPage(imageFiles: selectedImages),
-                ),
-              );
-            }
-          },
-          child: Icon(Icons.add),
-          backgroundColor: Colors.white,
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
     );
   }
 }

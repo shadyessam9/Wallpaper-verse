@@ -72,7 +72,7 @@ class _HomePageState extends State<HomePage> {
                     Row(
                       children: [
                         Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
                           child: Text(
                             'CATEGORIES',
                             style: TextStyle(
@@ -123,7 +123,7 @@ class _HomePageState extends State<HomePage> {
                     Row(
                       children: [
                         Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
                           child: Text(
                             'DISCOVER WALLPAPERS',
                             style: TextStyle(

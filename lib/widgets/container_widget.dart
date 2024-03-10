@@ -16,7 +16,7 @@ class ContainerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(right: 10),
+      padding: const EdgeInsets.all(2),
       child: SizedBox(
         height: 150,
         width: 200,
