@@ -262,11 +262,7 @@ class _LoginPageState extends State<LoginPage> {
                           ],
                         ),
                         Text(
-                          'WallpaperVerse ®',
-                          style: TextStyle(fontSize: 15, color: Colors.white),
-                        ),
-                        Text(
-                          'Version 1.0',
+                          'WallSpace ®',
                           style: TextStyle(fontSize: 15, color: Colors.white),
                         )
                       ],

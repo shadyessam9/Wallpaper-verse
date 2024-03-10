@@ -122,7 +122,7 @@ List<Widget> _buildActions(BuildContext context) {
             child: ListTile(
               title: Column(
                 children: [
-                  Text('WallpaperVerse ®', style: TextStyle(fontSize: 10, color: Colors.white)),
+                  Text('WallSpace ®', style: TextStyle(fontSize: 10, color: Colors.white)),
                   Text('Version 1.0', style: TextStyle(fontSize: 10, color: Colors.white))
                 ],
               ),

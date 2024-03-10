@@ -225,20 +225,6 @@ class _RegisterPageState extends State<RegisterPage> {
                     )
                   ],
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 40),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Column(
-                      children: [
-                        Text('WallpaperVerse ®', style: TextStyle(fontSize: 15, color: Colors.white)),
-                        Text('Version 1.0', style: TextStyle(fontSize: 15, color: Colors.white))
-                      ],
-                    )
-                  ],
-                ),
               )
             ],
           ),
