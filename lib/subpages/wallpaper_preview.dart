@@ -8,7 +8,6 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_wallpaper_manager/flutter_wallpaper_manager.dart';
-import 'package:image/image.dart' as img;
 
 class ImagePreviewer extends StatefulWidget {
   final String wallpaper_code;
@@ -26,17 +25,17 @@ class _ImagePreviewerState extends State<ImagePreviewer> {
   late Map<String, dynamic> imageData;
   bool isWallpaperSaved = false;
   bool isFavorite = false;
+  int downloadCounter = 0; // Counter for download button presses
 
   @override
   void initState() {
     super.initState();
     imageData = {};
-    // Check local storage for favorite status
     checkFavoriteLocally();
+    //  loadDownloadCounter();
   }
 
   Future<Map<String, dynamic>> fetchImageData() async {
-
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? id = prefs.getString('id');
 
@@ -55,10 +54,14 @@ class _ImagePreviewerState extends State<ImagePreviewer> {
   }
 
   Future<void> checkFavoriteLocally() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      isFavorite = prefs.getBool(widget.wallpaper_code) ?? false;
-    });
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      setState(() {
+        isFavorite = prefs.getBool(widget.wallpaper_code) ?? false;
+      });
+    } catch (e) {
+      print('Error checking favorite locally: $e');
+    }
   }
 
   Future<void> setWallpaper(int location) async {
@@ -87,42 +90,109 @@ class _ImagePreviewerState extends State<ImagePreviewer> {
   }
 
   void toggleFavorite() async {
-
+    try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-       String? id = prefs.getString('id');
+      String? id = prefs.getString('id');
 
-    if (isFavorite) {
-      // If already marked as favorite, remove from favorites
-      final response = await http.get(Uri.parse(
-          'https://wallpaperversaapp.000webhostapp.com/waapi/removefavorite.php?wallpaper_code=${widget.wallpaper_code}&user_code=${id}'));
+      if (isFavorite) {
+        // If already marked as favorite, remove from favorites
+        final response = await http.get(Uri.parse(
+            'https://wallpaperversaapp.000webhostapp.com/waapi/removefavorite.php?wallpaper_code=${widget.wallpaper_code}&user_code=${id}'));
 
-      if (response.statusCode == 200) {
-        Fluttertoast.showToast(msg: 'removed from favorites');
-        setState(() {
-          isFavorite = false;
-        });
-        // Update local storage
-        prefs.setBool(widget.wallpaper_code, false);
+        if (response.statusCode == 200) {
+          Fluttertoast.showToast(msg: 'removed from favorites');
+          setState(() {
+            isFavorite = false;
+          });
+          // Update local storage
+          prefs.setBool(widget.wallpaper_code, false);
+        } else {
+          Fluttertoast.showToast(msg: 'Failed to remove from favorites.');
+        }
       } else {
-        Fluttertoast.showToast(msg: 'Failed to remove  from favorites.');
-      }
-    } else {
-      // If not marked as favorite, add to favorites
-      final response = await http.get(Uri.parse(
-          'https://wallpaperversaapp.000webhostapp.com/waapi/addfavorite.php?wallpaper_code=${widget.wallpaper_code}&user_code=${id}'));
+        // If not marked as favorite, add to favorites
+        final response = await http.get(Uri.parse(
+            'https://wallpaperversaapp.000webhostapp.com/waapi/addfavorite.php?wallpaper_code=${widget.wallpaper_code}&user_code=${id}'));
 
-      if (response.statusCode == 200) {
-        Fluttertoast.showToast(msg: 'added to favorites successfully.');
-        setState(() {
-          isFavorite = true;
-        });
-        // Update local storage
-        prefs.setBool(widget.wallpaper_code, true);
-      } else {
-        Fluttertoast.showToast(msg: 'Failed to add image to favorites.');
+        if (response.statusCode == 200) {
+          Fluttertoast.showToast(msg: 'added to favorites successfully.');
+          setState(() {
+            isFavorite = true;
+          });
+          // Update local storage
+          prefs.setBool(widget.wallpaper_code, true);
+        } else {
+          Fluttertoast.showToast(msg: 'Failed to add image to favorites.');
+        }
       }
+    } catch (e) {
+      print('Error toggling favorite: $e');
     }
   }
+
+ /* void loadDownloadCounter() async {
+    // Load download counter from SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      downloadCounter = prefs.getInt('downloadCounter') ?? 0;
+    });
+  }*/
+
+/*
+  void saveDownloadCounter(int count) async {
+    // Save download counter to SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('downloadCounter', count);
+  }
+*/
+
+ /* Future<void> showAdPopup() async {
+    // Show a pop-up window with a text ad
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Ad Title"),
+          content: Text("Ad Content"),
+          actions: <Widget>[
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("Close"),
+            ),
+          ],
+        );
+      },
+    );
+  }*/
+
+  void handleDownloadButtonPressed() async {
+ /*   downloadCounter++;
+    if (downloadCounter % 5 == 0) {
+      // Show the ad pop-up window
+      await showAdPopup();
+    }
+    saveDownloadCounter(downloadCounter);*/
+
+    try {
+      final response = await http.get(Uri.parse(imageData['wallpaper_src'] ?? ''));
+      final bytes = response.bodyBytes;
+
+      // Save image to gallery
+      final result = await ImageGallerySaver.saveImage(Uint8List.fromList(bytes));
+      if (result['isSuccess']) {
+        Fluttertoast.showToast(msg: 'Image saved to gallery');
+      } else {
+        Fluttertoast.showToast(msg: 'Failed to save image to gallery');
+      }
+    } catch (e) {
+      print('Error downloading image: $e');
+      Fluttertoast.showToast(msg: 'Failed to download image');
+    }
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -167,8 +237,8 @@ class _ImagePreviewerState extends State<ImagePreviewer> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
-                          width: MediaQuery.of(context).size.width * 0.8,
-                          height: MediaQuery.of(context).size.height * 0.4,
+                          width: MediaQuery.of(context).size.width * 0.7,
+                          height: MediaQuery.of(context).size.height * 0.5,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(15),
                             image: DecorationImage(
@@ -229,6 +299,30 @@ class _ImagePreviewerState extends State<ImagePreviewer> {
                                   child: Text("Set as Both",style: TextStyle(color: Colors.white)),
                                   value: WallpaperManager.BOTH_SCREEN,
                                 ),
+                                PopupMenuItem(
+                                  child: Text("Dialpad",style: TextStyle(color: Colors.white)),
+                                  onTap: () async {
+                                       try {
+                                          final response = await http.get(Uri.parse(imageData['wallpaper_src'] ?? ''));
+                                          final bytes = response.bodyBytes;
+
+                                          // Save the image bytes to a temporary file
+                                          final directory = await getTemporaryDirectory();
+                                          final filePath = '${directory.path}/wallpaper.jpg';
+                                          File imageFile = File(filePath);
+                                          await imageFile.writeAsBytes(bytes);
+
+                                          // Save the image path to SharedPreferences
+                                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                                          await prefs.setString('backgroundImagePath', filePath);
+
+                                        } catch (e) {
+                                          print('Error downloading image: $e');
+                                          Fluttertoast.showToast(msg: 'Failed to download image');
+                                        }
+
+                                  },
+                                ),
                               ],
                             ).then((selectedValue) {
                               // Handle selected value
@@ -242,23 +336,7 @@ class _ImagePreviewerState extends State<ImagePreviewer> {
                           color: Colors.white,
                         ),
                         GestureDetector(
-                          onTap: () async {
-                            try {
-                              final response = await http.get(Uri.parse(imageData['wallpaper_src'] ?? ''));
-                              final bytes = response.bodyBytes;
-
-                              // Save image to gallery
-                              final result = await ImageGallerySaver.saveImage(Uint8List.fromList(bytes));
-                              if (result['isSuccess']) {
-                                Fluttertoast.showToast(msg: 'Image saved to gallery');
-                              } else {
-                                Fluttertoast.showToast(msg: 'Failed to save image to gallery');
-                              }
-                            } catch (e) {
-                              print('Error downloading image: $e');
-                              Fluttertoast.showToast(msg: 'Failed to download image');
-                            }
-                          },
+                          onTap: handleDownloadButtonPressed,
                           child: Container(
                             height: 50,
                             width: 200,

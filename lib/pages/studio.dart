@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../subpages/user_image_preview.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/container_widget.dart';
 import '../subpages/upload_wallpaper.dart';
@@ -25,7 +26,7 @@ class _StudioPage extends State<StudioPage> {
     String? id = prefs.getString('id');
 
     try {
-      final response = await http.get(Uri.parse('https://wallpaperversaapp.000webhostapp.com/waapi/userstudio.php?author_code=${id}'));
+      final response = await http.get(Uri.parse('https://wallpaperversaapp.000webhostapp.com/waapi/usergallery.php?user_code=${id}'));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -51,13 +52,11 @@ class _StudioPage extends State<StudioPage> {
         imageQuality: 80,
       );
 
-      if (pickedFiles != null) {
-        for (final pickedFile in pickedFiles) {
-          final File file = File(pickedFile.path);
-          selectedImages.add(file);
-        }
+      for (final pickedFile in pickedFiles) {
+        final File file = File(pickedFile.path);
+        selectedImages.add(file);
       }
-    } catch (e) {
+        } catch (e) {
       print('Error selecting images: $e');
     }
 
@@ -99,8 +98,8 @@ class _StudioPage extends State<StudioPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => ImagePreviewer(
-                              wallpaper_code: wallpapers[index]['wallpaper_code'].toString(),
+                            builder: (context) => UserImagePreviewer(
+                              wallpaper_src: wallpapers[index]['wallpaper_src'].toString(),
                             ),
                           ),
                         );
@@ -120,21 +119,41 @@ class _StudioPage extends State<StudioPage> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           FloatingActionButton(
+             heroTag: 'unique_tag_1', // Set a unique hero tag for each FloatingActionButton
             onPressed: () async {
               List<File>? selectedImages = await _getImages();
               if (selectedImages != null) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ImageUploadPage(imageFiles: selectedImages),
-                  ),
-                );
+                try {
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  String? id = prefs.getString('id');
+
+                  var request = http.MultipartRequest(
+                    'POST',
+                    Uri.parse('https://wallpaperversaapp.000webhostapp.com/waapi/usergalleryupload.php'),
+                  );
+
+                  for (var image in selectedImages) {
+                    request.files.add(await http.MultipartFile.fromPath('images[]', image.path));
+                  }
+                  request.fields['usercode'] = id!;
+
+                  var response = await request.send();
+
+                  if (response.statusCode == 200) {
+
+                  } else {
+                    print('Failed to upload images. Status code: ${response.statusCode}');
+                  }
+                } catch (e) {
+                  print('Error uploading images: $e');
+                }
               }
             },
             child: Icon(Icons.add)
           ),
           SizedBox(height: 15),
           FloatingActionButton(
+             heroTag: 'unique_tag_2', // Set a unique hero tag for each FloatingActionButton
             onPressed: fetchData,
             child: Icon(Icons.refresh)
           ),

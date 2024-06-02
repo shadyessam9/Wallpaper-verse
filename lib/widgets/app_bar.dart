@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import '../pages/profile.dart';
+import 'package:image_picker/image_picker.dart';
+import '../subpages/upload_wallpaper.dart';
+import 'dart:io';
 
 class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String title;
@@ -27,6 +29,7 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
 class _CustomAppBarState extends State<CustomAppBar> {
   late String name = '';
   late String email = '';
+  final picker = ImagePicker();
 
   @override
   void initState() {
@@ -34,7 +37,8 @@ class _CustomAppBarState extends State<CustomAppBar> {
     fetchUserData();
   }
 
-  Future<void> fetchUserData() async {
+Future<void> fetchUserData() async {
+  try {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? id = prefs.getString('id');
 
@@ -52,11 +56,40 @@ class _CustomAppBarState extends State<CustomAppBar> {
       // Handle error
       print('Failed to fetch user data: ${response.statusCode}');
     }
+  } catch (e) {
+    print('Error fetching user data: $e');
   }
+}
 
-   Future<void> deleteAllPreferences() async {
+Future<void> deleteAllPreferences() async {
+  try {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.clear();
+  } catch (e) {
+    print('Error deleting preferences: $e');
+  }
+}
+
+  Future<List<File>?> _getImages() async {
+    List<File>? selectedImages = [];
+    final picker = ImagePicker();
+
+    try {
+      final pickedFiles = await picker.pickMultiImage(
+        maxWidth: 800,
+        maxHeight: 600,
+        imageQuality: 80,
+      );
+
+      for (final pickedFile in pickedFiles) {
+        final File file = File(pickedFile.path);
+        selectedImages.add(file);
+      }
+        } catch (e) {
+      print('Error selecting images: $e');
+    }
+
+    return selectedImages.isNotEmpty ? selectedImages : null;
   }
 
   @override
@@ -96,6 +129,38 @@ List<Widget> _buildActions(BuildContext context) {
             enabled: false,
             child: ListTile(
               title: ElevatedButton(
+              onPressed: () async {
+            List<File>? selectedImages = await _getImages();
+              if (selectedImages != null) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ImageUploadPage(imageFiles: selectedImages),
+                  ),
+                );
+              }
+                  },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.deepPurpleAccent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  elevation: 10,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Text(
+                    'Upload Image',
+                    style: TextStyle(fontSize: 15, color: Colors.white),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          PopupMenuItem(
+            enabled: false,
+            child: ListTile(
+              title: ElevatedButton(
               onPressed: () {
                     deleteAllPreferences();
                     SystemChannels.platform.invokeMethod('SystemNavigator.pop'); // Close the app
@@ -122,7 +187,7 @@ List<Widget> _buildActions(BuildContext context) {
             child: ListTile(
               title: Column(
                 children: [
-                  Text('WallSpace ®', style: TextStyle(fontSize: 10, color: Colors.white)),
+                  Text('X wallpaper auto ®', style: TextStyle(fontSize: 10, color: Colors.white)),
                   Text('Version 1.0', style: TextStyle(fontSize: 10, color: Colors.white))
                 ],
               ),

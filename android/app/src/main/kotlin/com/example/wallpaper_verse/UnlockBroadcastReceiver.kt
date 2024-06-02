@@ -1,5 +1,4 @@
 package com.example.wallpaper_verse
-
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -25,9 +24,9 @@ class UnlockBroadcastReceiver : BroadcastReceiver() {
             context?.let { ctx ->
                 val prefs = ctx.getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
                 val slideState = prefs.getBoolean("flutter.slideState",false)
-                val selectedSource = prefs.getString("flutter.selectedSource", null)
-                val selectedTarget = prefs.getString("flutter.selectedTarget", null)
-                val durationType = prefs.getString("flutter.durationType", null)
+                val selectedSource = prefs.getString("flutter.selectedSource", "Random")
+                val selectedTarget = prefs.getString("flutter.selectedTarget", "HomePage & LockScreen")
+                val durationType = prefs.getString("flutter.durationType", "On UnLocking")
                 val id = prefs.getString("flutter.id", null)
                 if(slideState){
                if(durationType == "On UnLocking"){
@@ -65,7 +64,24 @@ class UnlockBroadcastReceiver : BroadcastReceiver() {
                         val wallpaperURL6 = "https://wallpaperversaapp.000webhostapp.com/waapi/userslideshowapi.php?user_id=${id}"
                         ChangeWallpaperTask(ctx).execute(wallpaperURL6)
                         }
-                    }
+                    };
+                   if(selectedSource=="MyStudio"){
+                        if(selectedTarget=="HomePage")
+                        {
+                        val wallpaperURL4 = "https://wallpaperversaapp.000webhostapp.com/waapi/userstudioslideshow.php?user_id=${id}"
+                        ChangeHomeWallpaperTask(ctx).execute(wallpaperURL4)
+                        }
+                        if(selectedTarget=="LockScreen")
+                        {
+                        val wallpaperURL5 = "https://wallpaperversaapp.000webhostapp.com/waapi/userstudioslideshow.php?user_id=${id}"
+                        ChangeLockWallpaperTask(ctx).execute(wallpaperURL5)
+                        }
+                        if(selectedTarget=="HomePage & LockScreen")
+                        {
+                        val wallpaperURL6 = "https://wallpaperversaapp.000webhostapp.com/waapi/userstudioslideshow.php?user_id=${id}"
+                        ChangeWallpaperTask(ctx).execute(wallpaperURL6)
+                        }
+                    };
                }
                 }else{}
             }

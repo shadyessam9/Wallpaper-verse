@@ -80,6 +80,23 @@ class HourTimerService : Service() {
                                 HChangeWallpaperTask(ctx).execute(wallpaperURL6)
                             }
                         }
+                    if(selectedSource=="MyStudio"){
+                        if(selectedTarget=="HomePage")
+                        {
+                        val wallpaperURL4 = "https://wallpaperversaapp.000webhostapp.com/waapi/userstudioslideshow.php?user_id=${id}"
+                        ChangeHomeWallpaperTask(ctx).execute(wallpaperURL4)
+                        }
+                        if(selectedTarget=="LockScreen")
+                        {
+                        val wallpaperURL5 = "https://wallpaperversaapp.000webhostapp.com/waapi/userstudioslideshow.php?user_id=${id}"
+                        ChangeLockWallpaperTask(ctx).execute(wallpaperURL5)
+                        }
+                        if(selectedTarget=="HomePage & LockScreen")
+                        {
+                        val wallpaperURL6 = "https://wallpaperversaapp.000webhostapp.com/waapi/userstudioslideshow.php?user_id=${id}"
+                        ChangeWallpaperTask(ctx).execute(wallpaperURL6)
+                        }
+                    }
                  }
                 }
             }

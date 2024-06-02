@@ -18,8 +18,8 @@ class ContainerWidget extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(2),
       child: SizedBox(
-        height: 150,
-        width: 200,
+        height: 200, // Set a fixed height for all images
+        width: 200, // Set a fixed width for all images
         child: ClipRRect(
           borderRadius: BorderRadius.circular(15),
           child: imageUrl != null
@@ -63,3 +63,4 @@ class ContainerWidget extends StatelessWidget {
     );
   }
 }
+

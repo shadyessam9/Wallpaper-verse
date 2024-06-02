@@ -30,7 +30,7 @@ class CategoriesContainerWidget extends StatelessWidget {
                 ),
                 child: Image.network(
                   imageUrl,
-                  fit: BoxFit.cover,
+                  fit: BoxFit.cover, // Ensure all images fill the container uniformly
                   loadingBuilder: (BuildContext context, Widget child,
                       ImageChunkEvent? loadingProgress) {
                     if (loadingProgress == null) return child;
@@ -56,17 +56,20 @@ class CategoriesContainerWidget extends StatelessWidget {
                 ),
               ),
               Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      color: Colors.black.withOpacity(0.3)
-                  )
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  color: Colors.black.withOpacity(0.3),
+                ),
               ),
               Center(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white, // Text color
+                child: FittedBox(
+                  fit: BoxFit.scaleDown, // Adjust the fit as needed
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
@@ -77,3 +80,4 @@ class CategoriesContainerWidget extends StatelessWidget {
     );
   }
 }
+

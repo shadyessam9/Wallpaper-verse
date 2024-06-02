@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:wallpaper_verse/pages/home.dart';
 import 'dart:convert';
-
 import 'package:wallpaper_verse/pages/login.dart';
 import 'package:wallpaper_verse/main_home.dart';
+import 'package:wallpaper_verse/pages/slideshow.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,10 +36,12 @@ class _SplashScreenState extends State<SplashScreen> {
     checkLoginStatus();
   }
 
-  Future<void> checkLoginStatus() async {
+ Future<void> checkLoginStatus()  async {
+  try {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? email = prefs.getString('email');
     String? password = prefs.getString('password');
+
 
     if (email != null && password != null) {
       var url = Uri.parse('https://wallpaperversaapp.000webhostapp.com/waapi/accountcheck.php');
@@ -48,7 +51,7 @@ class _SplashScreenState extends State<SplashScreen> {
       if (response.statusCode == 200) {
         var responseData = json.decode(response.body);
         if (responseData['status'] == 'success') {
-          // User is logged in, navigate to MainHome
+          prefs.setString('id', responseData['user_code'].toString());
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => MainHome()),
@@ -63,7 +66,11 @@ class _SplashScreenState extends State<SplashScreen> {
       context,
       MaterialPageRoute(builder: (context) => LoginPage()),
     );
+  } catch (e) {
+    print('Error checking login status: $e');
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -85,4 +92,5 @@ class _SplashScreenState extends State<SplashScreen> {
       ),
     );
   }
+
 }

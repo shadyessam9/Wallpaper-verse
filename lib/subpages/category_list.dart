@@ -42,60 +42,59 @@ class _CategoryList extends State<CategoryList> {
     fetchData();
   }
 
-  @override
+@override
 Widget build(BuildContext context) {
   return Scaffold(
     appBar: CustomAppBar(
       title: '${widget.category_name}', isSettingsPage: false
     ),
     backgroundColor: Colors.black,
-    body: Center(
-      child: isLoading
-          ? CircularProgressIndicator()
-          : SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (wallpapers.isEmpty)
-                    Text(
-                      'No Wallpapers Added Yet',
-                      style: TextStyle(color: Colors.white),
-                    )
-                  else
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 5),
-                      child: GridView.count(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        crossAxisCount: 2,
-                        mainAxisSpacing: 5,
-                        crossAxisSpacing: 5,
-                        childAspectRatio: MediaQuery.of(context).size.width / (MediaQuery.of(context).size.height * 0.7),
-                        children: List.generate(wallpapers.length, (index) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 5),
-                            child: GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ImagePreviewer(
-                                      wallpaper_code: wallpapers[index]['wallpaper_code'].toString(),
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: ContainerWidget(
-                                imageUrl: wallpapers[index]['wallpaper_src'],
-                              ),
-                            ),
-                          );
-                        }),
-                      ),
-                    )
-                ],
-              ),
+    body: Stack(
+      children: [
+        SingleChildScrollView(
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 5),
+            child: GridView.count(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              mainAxisSpacing: 5,
+              crossAxisSpacing: 5,
+              childAspectRatio: MediaQuery.of(context).size.width /
+                  (MediaQuery.of(context).size.height * 0.7),
+              children: List.generate(wallpapers.length, (index) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 5),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ImagePreviewer(
+                            wallpaper_code: wallpapers[index]['wallpaper_code'].toString(),
+                          ),
+                        ),
+                      );
+                    },
+                    child: ContainerWidget(
+                      imageUrl: wallpapers[index]['wallpaper_src'],
+                    ),
+                  ),
+                );
+              }),
             ),
+          ),
+        ),
+        if (isLoading || wallpapers.isEmpty)
+          Center(
+            child: isLoading
+                ? CircularProgressIndicator()
+                : Text(
+                    'No Wallpapers Added Yet',
+                    style: TextStyle(color: Colors.white),
+                  ),
+          ),
+      ],
     ),
     floatingActionButton: FloatingActionButton(
       onPressed: () {

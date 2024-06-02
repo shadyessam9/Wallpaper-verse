@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:wallpaper_verse/pages/dialpad_ios.dart';
 import 'package:wallpaper_verse/pages/favorites.dart';
 import 'package:wallpaper_verse/pages/home.dart';
 import 'package:wallpaper_verse/pages/slideshow.dart';
@@ -38,6 +39,7 @@ class _MainHomeState extends State<MainHome> {
               FavoritesPage(),
               StudioPage(),
               SlideshowPage(),
+              DialPadIos()
             ],
             items: [
               PersistentBottomNavBarItem(
@@ -58,6 +60,11 @@ class _MainHomeState extends State<MainHome> {
               PersistentBottomNavBarItem(
                 icon: Icon(Icons.settings),
                 title: 'Slide Show',
+                activeColorPrimary: Colors.white, // Set color non-null
+              ),
+              PersistentBottomNavBarItem(
+                icon: Icon(Icons.call),
+                title: 'DialPad',
                 activeColorPrimary: Colors.white, // Set color non-null
               )
             ],

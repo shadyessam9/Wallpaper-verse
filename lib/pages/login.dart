@@ -11,19 +11,21 @@ class LoginPage extends StatefulWidget {
 
   @override
   State<LoginPage> createState() => _LoginPageState();
+
 }
 
 class _LoginPageState extends State<LoginPage> {
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
-  bool _isLoading = false; // Add a boolean to track loading state
+  bool _isLoading = false;
+  final _formKey = GlobalKey<FormState>();
 
   Future<void> _login() async {
     final String email = _emailController.text.trim();
     final String password = _passwordController.text.trim();
 
     setState(() {
-      _isLoading = true; // Set loading state to true when starting login
+      _isLoading = true;
     });
 
     var url = Uri.parse('https://wallpaperversaapp.000webhostapp.com/waapi/login.php');
@@ -40,7 +42,6 @@ class _LoginPageState extends State<LoginPage> {
           prefs.setString('email', email);
           prefs.setString('password', password);
           prefs.setString('id', responseData['user_data']['user_code'].toString());
-
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => MainHome()),
@@ -53,25 +54,25 @@ class _LoginPageState extends State<LoginPage> {
                 backgroundColor: Color.fromRGBO(33, 33, 33, 1),
                 title: Text('Login Failed'),
                 content: Padding(
-                          padding: EdgeInsets.all(10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.error_outline,
-                                color: Colors.red,
-                                size: 30,
-                              ),
-                              SizedBox(width: 10),
-                              Flexible( // Wrap the Text widget with Flexible
-                                child: Text(
-                                  responseData['message'],
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ),
-                            ],
-                          ),
+                  padding: EdgeInsets.all(10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        color: Colors.red,
+                        size: 30,
+                      ),
+                      SizedBox(width: 10),
+                      Flexible(
+                        child: Text(
+                          responseData['message'],
+                          style: TextStyle(color: Colors.white),
                         ),
+                      ),
+                    ],
+                  ),
+                ),
                 actions: [
                   TextButton(
                     onPressed: () {
@@ -91,25 +92,25 @@ class _LoginPageState extends State<LoginPage> {
             return AlertDialog(
               title: Text('Error'),
               content: Padding(
-                          padding: EdgeInsets.all(10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.error_outline,
-                                color: Colors.red,
-                                size: 30,
-                              ),
-                              SizedBox(width: 10),
-                              Flexible( // Wrap the Text widget with Flexible
-                                child: Text(
-                                  'Failed to connect to the server.',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                padding: EdgeInsets.all(10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      color: Colors.red,
+                      size: 30,
+                    ),
+                    SizedBox(width: 10),
+                    Flexible(
+                      child: Text(
+                        'Failed to connect to the server.',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               actions: [
                 TextButton(
                   onPressed: () {
@@ -126,7 +127,7 @@ class _LoginPageState extends State<LoginPage> {
       print('Error: $e');
     } finally {
       setState(() {
-        _isLoading = false; // Set loading state to false when login process is complete
+        _isLoading = false;
       });
     }
   }
@@ -136,141 +137,172 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: Color.fromRGBO(33, 33, 33, 1),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(
-                height: 150,
-                child: Image.asset(
-                  'assets/app_icon/app_icon.png',
-                  fit: BoxFit.contain,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 20, left: 10, right: 10),
-                child: Container(
-                  color: Color.fromRGBO(33, 33, 33, 1),
-                  child: TextFormField(
-                    controller: _emailController,
-                    style: TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      labelText: 'Email',
-                      labelStyle: TextStyle(color: Colors.white),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.white),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.white),
-                      ),
-                      suffixIcon: Icon(
-                        Icons.email,
-                        color: Colors.white,
+      body: Padding(
+        padding: const EdgeInsets.only(top: 50, bottom: 50),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Form(
+              key: _formKey, // Add the form key
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: 150,
+                    child: Image.asset(
+                      'assets/app_icon/app_icon.png',
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20, left: 10, right: 10),
+                    child: Container(
+                      color: Color.fromRGBO(33, 33, 33, 1),
+                      child: TextFormField(
+                        key: Key('email'),
+                        controller: _emailController,
+                        style: TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          labelText: 'Email',
+                          labelStyle: TextStyle(color: Colors.white),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                          suffixIcon: Icon(
+                            Icons.email,
+                            color: Colors.white,
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'This field is required.';
+                          }
+                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                            return 'Please enter a valid email address.';
+                          }
+                          return null;
+                        },
                       ),
                     ),
                   ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 20, left: 10, right: 10),
-                child: Container(
-                  color: Color.fromRGBO(33, 33, 33, 1),
-                  child: TextFormField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    style: TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      labelStyle: TextStyle(color: Colors.white),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.white),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.white),
-                      ),
-                      suffixIcon: Icon(
-                        Icons.password,
-                        color: Colors.white,
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20, left: 10, right: 10),
+                    child: Container(
+                      color: Color.fromRGBO(33, 33, 33, 1),
+                      child: TextFormField(
+                        key: Key('password'),
+                        controller: _passwordController,
+                        obscureText: true,
+                        style: TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          labelStyle: TextStyle(color: Colors.white),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                          suffixIcon: Icon(
+                            Icons.password,
+                            color: Colors.white,
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'This field is required.';
+                          }
+                          if (value.length < 6) {
+                            return 'Password must be at least 6 characters long.';
+                          }
+                          return null;
+                        },
                       ),
                     ),
                   ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                      onPressed: _isLoading ? null : _login, // Disable button while loading
-                      style: ElevatedButton.styleFrom(
-                        primary: Colors.green,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        elevation: 10,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Text(
-                          'Log In',
-                          style: TextStyle(fontSize: 20, color: Colors.white),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-              // Add loading indicator when _isLoading is true
-              if (_isLoading)
-                Padding(
-                  padding: const EdgeInsets.only(top: 10),
-                  child: CircularProgressIndicator(),
-                ),
-              Padding(
-                padding: const EdgeInsets.only(top: 40),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Column(
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Row(
-                          children: [
-                            Text(
-                              'New to the app ?',
-                              style: TextStyle(fontSize: 15, color: Colors.white),
+                        ElevatedButton(
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              if (!_isLoading) {
+                                _login();
+                              }
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.green,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterPage()));
-                              },
-                              child: Text(
-                                ' Sign Up Now !',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Colors.blue,
-                                  decoration: TextDecoration.underline,
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                        Text(
-                          'WallSpace ®',
-                          style: TextStyle(fontSize: 15, color: Colors.white),
+                            elevation: 10,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: Text(
+                              'Log In',
+                              style: TextStyle(fontSize: 20, color: Colors.white),
+                            ),
+                          ),
                         )
                       ],
-                    )
-                  ],
-                ),
-              )
-            ],
+                    ),
+                  ),
+                  if (_isLoading)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: CircularProgressIndicator(),
+                    ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 40),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Column(
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  'New to the app ?',
+                                  style: TextStyle(fontSize: 15, color: Colors.white),
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterPage()));
+                                  },
+                                  child: Text(
+                                    ' Register Now !',
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.blue,
+                                      decoration: TextDecoration.underline,
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                            Text(
+                              'X wallpaper auto ®',
+                              style: TextStyle(fontSize: 15, color: Colors.white),
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
           ),
         ),
       ),

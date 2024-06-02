@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:wallpaper_verse/subpages/category_list.dart';
 import '../subpages/wallpaper_preview.dart';
 import '../widgets/app_bar.dart';
@@ -15,6 +17,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final picker = ImagePicker();
   List<dynamic> categories = [];
   List<dynamic> wallpapers = [];
   bool isLoading = true;
@@ -43,6 +46,8 @@ class _HomePageState extends State<HomePage> {
       });
     }
   }
+
+
 
   @override
   void initState() {
@@ -83,35 +88,40 @@ class _HomePageState extends State<HomePage> {
                         )
                       ],
                     ),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                      height: MediaQuery.of(context).size.height * 0.20,
-                      child: isLoading
-                          ? Center(child: CircularProgressIndicator())
-                          : ListView.builder(
-                              itemCount: categories.length,
-                              scrollDirection: Axis.horizontal,
-                              physics: AlwaysScrollableScrollPhysics(),
-                              itemBuilder: (context, index) {
-                                return GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => CategoryList(
-                                            category_code: categories[index]['category_code'].toString(),
-                                            category_name: categories[index]['category_name'],
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    child: CategoriesContainerWidget(
-                                      title: categories[index]['category_name'],
-                                      imageUrl: categories[index]['category_cover_src'],
-                                    ));
-                              },
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                    child: isLoading
+                        ? Center(child: CircularProgressIndicator())
+                        : GridView.builder(
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 4, // 5 columns
+                              crossAxisSpacing: 10,
+                              mainAxisSpacing: 10,
                             ),
-                    ),
+                            itemCount: categories.length,
+                            physics: NeverScrollableScrollPhysics(), // Disable scrolling
+                            shrinkWrap: true, // Allow the container to size itself
+                            itemBuilder: (context, index) {
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => CategoryList(
+                                        category_code: categories[index]['category_code'].toString(),
+                                        category_name: categories[index]['category_name'],
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: CategoriesContainerWidget(
+                                  title: categories[index]['category_name'],
+                                  imageUrl: categories[index]['category_cover_src'],
+                                ),
+                              );
+                            },
+                          ),
+                  ),
                   ],
                 ),
               ),
@@ -134,18 +144,36 @@ class _HomePageState extends State<HomePage> {
                         )
                       ],
                     ),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 5),
-                      child: isLoading
-                          ? Padding(padding:EdgeInsets.all(150),child: CircularProgressIndicator()) // Center the loading indicator
-                          : GridView.count(
-                              shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 5),
+                    child: isLoading
+                        ? Padding(
+                            padding: EdgeInsets.all(150),
+                            child: CircularProgressIndicator(),
+                          ) // Center the loading indicator
+                        : GridView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 2,
                               mainAxisSpacing: 5,
                               crossAxisSpacing: 5,
-                              childAspectRatio: MediaQuery.of(context).size.width / (MediaQuery.of(context).size.height * 0.7),
-                              children: List.generate(wallpapers.length, (index) {
+                              childAspectRatio:
+                                  MediaQuery.of(context).size.width / (MediaQuery.of(context).size.height * 0.7),
+                            ),
+//                            itemCount: wallpapers.length + (wallpapers.length ~/ 2), // Adjusted item count
+                              itemCount: wallpapers.length,
+                            itemBuilder: (context, index) {
+/*                              if ((index + 1) % 3 == 0 && index != 0) {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 5),
+                                  child: ContainerWidget(
+                                    imageUrl: "https://wallpaperversaapp.000webhostapp.com/warehouse/images/ad.gif",
+                                  ),
+                                );
+                              } else {*/
+                                // Display wallpaper container
+ //                               final wallpaperIndex = index - (index ~/ 3);
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(vertical: 5),
                                   child: GestureDetector(
@@ -155,25 +183,27 @@ class _HomePageState extends State<HomePage> {
                                         MaterialPageRoute(
                                           builder: (context) => ImagePreviewer(
                                             wallpaper_code: wallpapers[index]['wallpaper_code'].toString(),
+                                          //  wallpaper_code: wallpapers[wallpaperIndex]['wallpaper_code'].toString(),
                                           ),
                                         ),
                                       );
                                     },
                                     child: ContainerWidget(
-                                      imageUrl: wallpapers[index]['wallpaper_src'],
+                                     imageUrl: wallpapers[index]['wallpaper_src'],
                                     ),
                                   ),
                                 );
-                              }),
-                            ),
-                    ),
+ //                           }
+                            },
+                          ),
+                  ),
                   ],
                 ),
               ),
             ],
           ),
         ),
-      ),
+      )
     );
   }
 }
